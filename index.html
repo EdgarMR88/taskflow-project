@@ -3,22 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Taskflow App</title> 
-    <link rel="stylesheet" href="styles.css">
+    <title>Tienda de Animales</title> 
+    <link rel="stylesheet" href="style.css">
 </head> 
 <body>
     <header>
-        <h1>Tienda Animales</h1>
+        <h1>Mi Tienda de Mascotas</h1>
     </header>
 
-    <main>
-        <aside>
-            <p>Categorias</p>
+    <main class="contenedor-principal">
+        <aside class="categorias">
+            <h3>Categorías</h3>
         </aside>
-        <section class="task-list">
+        <section class="grid-mascotas">
             <div class="task-card">
-                <h3>cachorros</h3>
-                <span class="badge">adopcion</span>
+                <div class="info">
+                    <h3>🐶 Perros</h3>
+                    <p>Fieles compañeros</p>
+                </div>
+                <span class="badge">Disponible</span>
+            </div>
+
+            <div class="task-card">
+                <div class="info">
+                    <h3>🐱 Gatos</h3>
+                    <p>Independientes y cariñosos</p>
+                </div>
+                <span class="badge">Disponible</span>
+            </div>
+
+            <div class="task-card">
+                <div class="info">
+                    <h3>🐠 Peces</h3>
+                    <p>Coloridos y bajo el agua</p>
+                </div>
+                <span class="badge">Disponible</span>
+            </div>
+
+            <div class="task-card">
+                <div class="info">
+                    <h3>🐦 Pájaros</h3>
+                    <p>Melodiosos y voladores</p>
+                </div>
+                <span class="badge">Disponible</span>
             </div>
         </section>
     </main>
