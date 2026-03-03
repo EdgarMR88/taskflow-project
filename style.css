@@ -1,0 +1,14 @@
+:root {
+    --color-principal: #3498db;
+    --color-fondo: #f5f5f5;
+    --color-texto: #333333;
+    --fuente-main: 'Arial', sans-serif;
+    --espaciado: 20px;  
+}
+body {
+    background-color: var(--color-fondo);
+    color: var(--color-texto);
+    font-family: var(--fuente-main);
+    margin: 0;
+    padding: var(--espaciado);
+}   
