@@ -1,14 +1,92 @@
 :root {
-    --color-principal: #3498db;
-    --color-fondo: #f5f5f5;
-    --color-texto: #333333;
-    --fuente-main: 'Arial', sans-serif;
-    --espaciado: 20px;  
+    --color-principal: #ff9f43;
+    --color-secundario: #54a0ff;
+    --color-fondo: #f1f2f6;
+    --color-texto: #2f3542;
+    --espaciado: 20px;
 }
+
 body {
+    font-family: 'Segoe UI', sans-serif;
     background-color: var(--color-fondo);
     color: var(--color-texto);
-    font-family: var(--fuente-main);
     margin: 0;
+}
+
+header {
+    background-color: var(--color-principal);
+    color: rgb(127, 123, 123);
     padding: var(--espaciado);
-}   
+    text-align: center;
+}
+
+.contenedor-principal {
+    display: flex; 
+    padding: var(--espaciado);
+    gap: 20px;
+}
+
+.categorias {
+    flex: 1; 
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    height: fit-content;
+}
+
+.grid-mascotas {
+    flex: 3; 
+    display: flex;
+    flex-direction: column; 
+    gap: 15px;
+}
+
+.task-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease; 
+}
+
+.task-card:hover {
+    transform: scale(1.02);
+    border-left: 5px solid var(--color-principal);
+}
+
+.badge {
+    background-color: var(--color-secundario);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .contenedor-principal {
+        flex-direction: column; 
+        padding: 10px;
+    }
+
+    .categorias {
+        width: 100%; 
+        box-sizing: border-box;
+    }
+
+    .grid-mascotas {
+        width: 100%;
+    }
+
+    .task-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .badge {
+        align-self: flex-end; 
+    }
+}
