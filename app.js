@@ -1,10 +1,11 @@
 class QuickTaskManager {
   constructor() {
       this.tasks = [];
-      this.currentFilter = 'todas';
-      this.currentCategory = 'todas';
+      this.currentFilter = 'all';
+      this.currentCategory = 'all';
       this.currentView = 'grid';
       this.editingTaskId = null;
+      this.currentSearchTerm = '';
       
       this.init();
   }
@@ -16,6 +17,14 @@ class QuickTaskManager {
       this.renderTasks();
       this.updateEmptyState();
       this.showWelcomeMessage();
+      this.initializeButtonStyles();
+  }
+
+  initializeButtonStyles() {
+      // Aplicar estilos iniciales a los botones
+      this.updateFilterButtons();
+      this.updateCategoryButtons();
+      this.updateViewButtons();
   }
 
   showWelcomeMessage() {
@@ -31,339 +40,260 @@ class QuickTaskManager {
           this.addTaskQuickly();
       });
 
-      // Search functionality
+      // Search functionality - CORREGIDO
       document.getElementById('search-input').addEventListener('input', (e) => {
+          this.currentSearchTerm = e.target.value;
           this.searchTasksQuickly(e.target.value);
       });
 
-      // Filter buttons
+      // Filter buttons - CORREGIDO
       document.querySelectorAll('.filter-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
-              this.setFilter(e.target.dataset.filter);
+              e.preventDefault();
+              const filter = e.currentTarget.dataset.filter;
+              this.setFilter(filter);
           });
       });
 
-      // Category filters
-      document.querySelectorAll('.category-filter').forEach(btn => {
+      // Category buttons - CORREGIDO
+      document.querySelectorAll('.category-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
-              this.setCategoryFilter(e.target.dataset.category);
+              e.preventDefault();
+              const category = e.currentTarget.dataset.category;
+              this.setCategoryFilter(category);
           });
       });
 
-      // View toggle
-      document.getElementById('grid-view').addEventListener('click', () => {
-          this.setView('grid');
-      });
-
-      document.getElementById('list-view').addEventListener('click', () => {
-          this.setView('list');
-      });
-
-      // Clear completed tasks
-      document.getElementById('clear-completed').addEventListener('click', () => {
-          this.clearCompletedTasksQuickly();
+      // View toggle - CORREGIDO
+      document.querySelectorAll('.view-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              const view = e.currentTarget.dataset.view;
+              this.setView(view);
+          });
       });
 
       // Export tasks
       document.getElementById('export-tasks').addEventListener('click', () => {
-          this.exportTasksQuickly();
+          this.exportTasks();
+      });
+
+      // Clear completed
+      document.getElementById('clear-completed').addEventListener('click', () => {
+          this.clearCompletedTasks();
       });
 
       // Modal events
-      document.getElementById('edit-modal').addEventListener('click', (e) => {
-          if (e.target.id === 'edit-modal') {
-              this.closeModal();
-          }
-      });
-
-      document.querySelector('.close-modal').addEventListener('click', () => {
-          this.closeModal();
-      });
-
-      document.getElementById('cancel-edit').addEventListener('click', () => {
-          this.closeModal();
+      document.querySelectorAll('.close-modal, .cancel-edit').forEach(btn => {
+          btn.addEventListener('click', () => {
+              this.closeEditModal();
+          });
       });
 
       document.getElementById('edit-form').addEventListener('submit', (e) => {
           e.preventDefault();
-          this.saveEditedTaskQuickly();
+          this.saveEditedTask();
+      });
+
+      // Close modal on backdrop click
+      document.getElementById('edit-modal').addEventListener('click', (e) => {
+          if (e.target.id === 'edit-modal') {
+              this.closeEditModal();
+          }
       });
   }
 
   addTaskQuickly() {
-      const taskInput = document.getElementById('task-input');
+      const titleInput = document.getElementById('task-input');
       const prioritySelect = document.getElementById('task-priority');
       const categorySelect = document.getElementById('task-category');
 
-      const taskText = taskInput.value.trim();
-      if (!taskText) {
-          this.showQuickNotification('⚠️ ¡Escribe algo para crear una tarea rápida!', 'warning');
-          return;
-      }
+      const title = titleInput.value.trim();
+      if (!title) return;
 
       const task = {
           id: Date.now(),
-          text: taskText,
+          title: title,
           priority: prioritySelect.value,
           category: categorySelect.value,
           completed: false,
-          createdAt: new Date().toISOString(),
-          completedAt: null,
-          isQuickTask: true // Marca especial de QuickTask
+          createdAt: new Date().toISOString()
       };
 
       this.tasks.unshift(task);
-      this.saveTasksQuickly();
-      this.renderTasks();
+      this.saveTasks();
       this.updateStats();
+      this.renderTasks(); // CORREGIDO: Renderizar inmediatamente
       this.updateEmptyState();
 
       // Reset form
-      taskInput.value = '';
+      titleInput.value = '';
       prioritySelect.value = 'media';
       categorySelect.value = 'personal';
 
-      // Quick notification
-      this.showQuickNotification('⚡ ¡Tarea añadida rápidamente!', 'success');
-
-      // Add animation to new task
-      setTimeout(() => {
-          const newTaskElement = document.querySelector(`[data-id="${task.id}"]`);
-          if (newTaskElement) {
-              newTaskElement.classList.add('fade-in');
-          }
-      }, 100);
+      this.showNotification('✅ Tarea añadida rápidamente', 'success');
+      titleInput.focus();
   }
 
-  deleteTaskQuickly(id) {
-      const taskElement = document.querySelector(`[data-id="${id}"]`);
-      if (taskElement) {
-          taskElement.classList.add('slide-out');
-          setTimeout(() => {
-              this.tasks = this.tasks.filter(task => task.id !== id);
-              this.saveTasksQuickly();
-              this.renderTasks();
-              this.updateStats();
-              this.updateEmptyState();
-              this.showQuickNotification('🗑️ Tarea eliminada rápidamente', 'info');
-          }, 300);
-      }
-  }
-
-  toggleTaskCompleteQuickly(id) {
-      const task = this.tasks.find(t => t.id === id);
-      if (task) {
-          task.completed = !task.completed;
-          task.completedAt = task.completed ? new Date().toISOString() : null;
-          this.saveTasksQuickly();
-          this.renderTasks();
-          this.updateStats();
-          
-          const message = task.completed ? 
-              '✅ ¡Tarea completada rápidamente!' : 
-              '🔄 Tarea reabierta rápidamente';
-          this.showQuickNotification(message, 'success');
-      }
-  }
-
-  editTaskQuickly(id) {
-      const task = this.tasks.find(t => t.id === id);
-      if (!task) return;
-
-      this.editingTaskId = id;
-      
-      document.getElementById('edit-task-input').value = task.text;
-      document.getElementById('edit-task-priority').value = task.priority;
-      document.getElementById('edit-task-category').value = task.category;
-      
-      document.getElementById('edit-modal').style.display = 'block';
-  }
-
-  saveEditedTaskQuickly() {
-      if (!this.editingTaskId) return;
-
-      const task = this.tasks.find(t => t.id === this.editingTaskId);
-      if (!task) return;
-
-      const newText = document.getElementById('edit-task-input').value.trim();
-      if (!newText) {
-          this.showQuickNotification('⚠️ El título no puede estar vacío', 'warning');
-          return;
-      }
-
-      task.text = newText;
-      task.priority = document.getElementById('edit-task-priority').value;
-      task.category = document.getElementById('edit-task-category').value;
-      task.updatedAt = new Date().toISOString();
-
-      this.saveTasksQuickly();
-      this.renderTasks();
-      this.closeModal();
-      this.showQuickNotification('⚡ Tarea editada rápidamente', 'success');
-  }
-
-  closeModal() {
-      document.getElementById('edit-modal').style.display = 'none';
-      this.editingTaskId = null;
+  searchTasksQuickly(query) {
+      this.currentSearchTerm = query.toLowerCase().trim();
+      this.renderTasks(); // CORREGIDO: Usar renderTasks que ya aplica todos los filtros
   }
 
   setFilter(filter) {
       this.currentFilter = filter;
-      
-      // Update active button
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.filter === filter);
-      });
-      
+      this.updateFilterButtons();
       this.renderTasks();
-      this.showQuickNotification(`🔍 Filtro aplicado: ${filter}`, 'info');
   }
 
   setCategoryFilter(category) {
       this.currentCategory = category;
-      
-      // Update active button
-      document.querySelectorAll('.category-filter').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.category === category);
-      });
-      
+      this.updateCategoryButtons();
       this.renderTasks();
-      const categoryName = category === 'todas' ? 'todas' : category;
-      this.showQuickNotification(`📂 Categoría: ${categoryName}`, 'info');
   }
 
   setView(view) {
       this.currentView = view;
-      const taskList = document.getElementById('task-list');
+      this.updateViewButtons();
       
-      // Update active button
+      const container = document.getElementById('task-container');
+      if (view === 'list') {
+          container.className = 'space-y-3';
+      } else {
+          container.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4';
+      }
+
+      this.renderTasks();
+  }
+
+  // NUEVOS MÉTODOS para actualizar botones
+  updateFilterButtons() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+          const isActive = btn.dataset.filter === this.currentFilter;
+          this.updateButtonState(btn, isActive);
+      });
+  }
+
+  updateCategoryButtons() {
+      document.querySelectorAll('.category-btn').forEach(btn => {
+          const isActive = btn.dataset.category === this.currentCategory;
+          this.updateButtonState(btn, isActive);
+      });
+  }
+
+  updateViewButtons() {
       document.querySelectorAll('.view-btn').forEach(btn => {
-          btn.classList.remove('active');
+          const isActive = btn.dataset.view === this.currentView;
+          this.updateButtonState(btn, isActive);
       });
-      document.getElementById(`${view}-view`).classList.add('active');
-      
-      // Update list class
-      taskList.className = view === 'grid' ? 'task-grid' : 'task-list';
-      
-      const viewName = view === 'grid' ? 'cuadrícula' : 'lista';
-      this.showQuickNotification(`👁️ Vista: ${viewName}`, 'info');
   }
 
-  searchTasksQuickly(searchTerm) {
-      const taskElements = document.querySelectorAll('.task-item');
-      const term = searchTerm.toLowerCase().trim();
+  updateButtonState(button, isActive) {
+      // Remover todas las clases
+      button.classList.remove(
+          'bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300',
+          'bg-purple-500', 'text-white', 'bg-purple-600'
+      );
       
-      if (!term) {
-          taskElements.forEach(element => {
-              element.style.display = 'block';
-          });
-          return;
+      if (isActive) {
+          button.classList.add('bg-purple-500', 'text-white');
+      } else {
+          button.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
       }
-      
-      let foundTasks = 0;
-      taskElements.forEach(element => {
-          const taskTitle = element.querySelector('.task-title').textContent.toLowerCase();
-          const categoryBadge = element.querySelector('.category-badge').textContent.toLowerCase();
-          const priorityBadge = element.querySelector('.priority-badge').textContent.toLowerCase();
-          
-          // Búsqueda mejorada en título, categoría y prioridad
-          const shouldShow = taskTitle.includes(term) || 
-                            categoryBadge.includes(term) || 
-                            priorityBadge.includes(term);
-          
-          element.style.display = shouldShow ? 'block' : 'none';
-          if (shouldShow) foundTasks++;
-      });
-      
-      // Mostrar resultado de búsqueda
-      if (term) {
-          this.showQuickNotification(`🔎 ${foundTasks} tareas encontradas`, 'info');
-      }
-  }
-
-  clearCompletedTasksQuickly() {
-      const completedCount = this.tasks.filter(task => task.completed).length;
-      
-      if (completedCount === 0) {
-          this.showQuickNotification('ℹ️ No hay tareas completadas para limpiar', 'info');
-          return;
-      }
-      
-      if (confirm(`¿Estás seguro de que quieres eliminar ${completedCount} tareas completadas rápidamente?`)) {
-          this.tasks = this.tasks.filter(task => !task.completed);
-          this.saveTasksQuickly();
-          this.renderTasks();
-          this.updateStats();
-          this.updateEmptyState();
-          this.showQuickNotification(`🧹 ${completedCount} tareas eliminadas rápidamente`, 'success');
-      }
-  }
-
-  exportTasksQuickly() {
-      if (this.tasks.length === 0) {
-          this.showQuickNotification('ℹ️ No hay tareas para exportar', 'info');
-          return;
-      }
-
-      const exportData = {
-          appName: 'QuickTask',
-          version: '1.0.0',
-          exportDate: new Date().toISOString(),
-          totalTasks: this.tasks.length,
-          completedTasks: this.tasks.filter(t => t.completed).length,
-          tasks: this.tasks
-      };
-
-      const dataStr = JSON.stringify(exportData, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-      
-      const exportFileDefaultName = `quicktask-export-${new Date().toISOString().split('T')[0]}.json`;
-      
-      const linkElement = document.createElement('a');
-      linkElement.setAttribute('href', dataUri);
-      linkElement.setAttribute('download', exportFileDefaultName);
-      linkElement.click();
-      
-      this.showQuickNotification('📤 Tareas exportadas rápidamente', 'success');
   }
 
   renderTasks() {
-      const taskList = document.getElementById('task-list');
-      const filteredTasks = this.getFilteredTasks();
-      
-      taskList.innerHTML = '';
-      
-      filteredTasks.forEach(task => {
-          const taskElement = this.createTaskElement(task);
-          taskList.appendChild(taskElement);
-      });
-      
-      this.updateEmptyState();
+      let filteredTasks = [...this.tasks];
+
+      // Aplicar filtro de búsqueda PRIMERO
+      if (this.currentSearchTerm) {
+          filteredTasks = filteredTasks.filter(task => 
+              task.title.toLowerCase().includes(this.currentSearchTerm) ||
+              task.category.toLowerCase().includes(this.currentSearchTerm) ||
+              task.priority.toLowerCase().includes(this.currentSearchTerm)
+          );
+      }
+
+      // Apply status filter
+      if (this.currentFilter === 'pending') {
+          filteredTasks = filteredTasks.filter(task => !task.completed);
+      } else if (this.currentFilter === 'completed') {
+          filteredTasks = filteredTasks.filter(task => task.completed);
+      }
+
+      // Apply category filter
+      if (this.currentCategory !== 'all') {
+          filteredTasks = filteredTasks.filter(task => task.category === this.currentCategory);
+      }
+
+      this.renderFilteredTasks(filteredTasks);
   }
 
-  getFilteredTasks() {
-      let filtered = [...this.tasks];
-      
-      // Filter by completion status
-      if (this.currentFilter === 'pendientes') {
-          filtered = filtered.filter(task => !task.completed);
-      } else if (this.currentFilter === 'completadas') {
-          filtered = filtered.filter(task => task.completed);
+  renderFilteredTasks(tasks) {
+      const container = document.getElementById('task-container');
+      const emptyState = document.getElementById('empty-state');
+
+      // Limpiar contenedor
+      container.innerHTML = '';
+
+      if (tasks.length === 0) {
+          // Mostrar estado vacío apropiado
+          let emptyMessage = '';
+          let emptyIcon = 'fas fa-bolt';
+          
+          if (this.currentSearchTerm) {
+              emptyMessage = `No se encontraron tareas para "${this.currentSearchTerm}"`;
+              emptyIcon = 'fas fa-search';
+          } else if (this.currentFilter === 'completed') {
+              emptyMessage = 'No hay tareas completadas';
+              emptyIcon = 'fas fa-check-circle';
+          } else if (this.currentFilter === 'pending') {
+              emptyMessage = 'No hay tareas pendientes';
+              emptyIcon = 'fas fa-clock';
+          } else if (this.currentCategory !== 'all') {
+              emptyMessage = `No hay tareas en la categoría seleccionada`;
+              emptyIcon = 'fas fa-folder-open';
+          } else {
+              emptyMessage = '¡Empieza a ser productivo!';
+              emptyIcon = 'fas fa-bolt';
+          }
+
+          container.innerHTML = `
+              <div class="col-span-full text-center py-16">
+                  <i class="${emptyIcon} text-6xl text-yellow-500 mb-4 animate-pulse"></i>
+                  <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                      ${emptyMessage}
+                  </h3>
+                  <p class="text-gray-500 dark:text-gray-400">
+                      ${this.currentSearchTerm || this.currentFilter !== 'all' || this.currentCategory !== 'all' 
+                          ? 'Prueba con otros filtros' 
+                          : 'Añade tu primera tarea rápida ⚡'}
+                  </p>
+              </div>
+          `;
+          return;
       }
-      
-      // Filter by category
-      if (this.currentCategory !== 'todas') {
-          filtered = filtered.filter(task => task.category === this.currentCategory);
-      }
-      
-      return filtered;
+
+      // Renderizar tareas
+      container.innerHTML = tasks.map(task => this.createTaskHTML(task)).join('');
+
+      // Bind task events
+      this.bindTaskEvents();
   }
 
-  createTaskElement(task) {
-      const li = document.createElement('li');
-      li.className = `task-item priority-${task.priority} ${task.completed ? 'completed' : ''}`;
-      li.dataset.id = task.id;
-      
+  createTaskHTML(task) {
+      const priorityColors = {
+          alta: 'border-red-500 bg-red-50 dark:bg-red-900/20',
+          media: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
+          baja: 'border-green-500 bg-green-50 dark:bg-green-900/20'
+      };
+
+      const priorityIcons = {
+          alta: '🔴',
+          media: '⚡',
+          baja: '🟢'
+      };
+
       const categoryIcons = {
           personal: '👤',
           trabajo: '💼',
@@ -371,207 +301,222 @@ class QuickTaskManager {
           salud: '🏥',
           estudios: '📚'
       };
-      
-      const priorityLabels = {
-          alta: '🔴 Alta',
-          media: '🟡 Media',
-          baja: '🟢 Baja'
-      };
-      
-      const date = new Date(task.createdAt).toLocaleDateString('es-ES');
-      const quickBadge = task.isQuickTask ? '<span class="task-badge" style="background: rgba(243, 156, 18, 0.2); color: #f39c12; border: 1px solid #f39c12;">⚡ QuickTask</span>' : '';
-      
-      li.innerHTML = `
-          <div class="task-header">
-              <h3 class="task-title">${this.escapeHtml(task.text)}</h3>
-          </div>
-          <div class="task-meta">
-              <span class="task-badge priority-badge ${task.priority}">${priorityLabels[task.priority]}</span>
-              <span class="task-badge category-badge">${categoryIcons[task.category]} ${task.category.charAt(0).toUpperCase() + task.category.slice(1)}</span>
-              ${quickBadge}
-          </div>
-          <div class="task-date">
-              Creada: ${date}
-              ${task.completedAt ? `<br>Completada: ${new Date(task.completedAt).toLocaleDateString('es-ES')}` : ''}
-              ${task.updatedAt ? `<br>Editada: ${new Date(task.updatedAt).toLocaleDateString('es-ES')}` : ''}
-          </div>
-          <div class="task-actions">
-              <button class="task-btn complete-btn" onclick="quickTaskManager.toggleTaskCompleteQuickly(${task.id})">
-                  <i class="fas ${task.completed ? 'fa-undo' : 'fa-check'}"></i>
-                  ${task.completed ? 'Reabrir' : 'Completar'}
-              </button>
-              <button class="task-btn edit-btn" onclick="quickTaskManager.editTaskQuickly(${task.id})">
-                  <i class="fas fa-bolt"></i>
-                  Editar
-              </button>
-              <button class="task-btn delete-btn" onclick="quickTaskManager.deleteTaskQuickly(${task.id})">
-                  <i class="fas fa-trash"></i>
-                  Eliminar
-              </button>
+
+      const completedClass = task.completed ? 'opacity-60' : '';
+      const textDecoration = task.completed ? 'line-through' : '';
+
+      return `
+          <div class="task-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border-l-4 ${priorityColors[task.priority]} ${completedClass} 
+                      transform hover:scale-105 transition-all duration-300 hover:shadow-lg" 
+               data-task-id="${task.id}">
+              
+              <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                      <button class="toggle-task text-2xl hover:scale-110 transition-transform duration-300" 
+                              data-task-id="${task.id}">
+                          ${task.completed ? '✅' : '⭕'}
+                      </button>
+                      <span class="text-lg">${categoryIcons[task.category]}</span>
+                      <span class="text-sm font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">
+                          ${priorityIcons[task.priority]} ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+                      </span>
+                  </div>
+                  
+                  <div class="flex gap-1">
+                      <button class="edit-task text-blue-500 hover:text-blue-700 p-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-300" 
+                              data-task-id="${task.id}">
+                          <i class="fas fa-edit"></i>
+                      </button>
+                      <button class="delete-task text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-300" 
+                              data-task-id="${task.id}">
+                          <i class="fas fa-trash"></i>
+                      </button>
+                  </div>
+              </div>
+              
+              <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2 ${textDecoration}">
+                  ${task.title}
+              </h3>
+              
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                  ${new Date(task.createdAt).toLocaleDateString('es-ES')}
+              </div>
           </div>
       `;
+  }
+
+  bindTaskEvents() {
+      // Toggle task completion
+      document.querySelectorAll('.toggle-task').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const taskId = parseInt(e.currentTarget.dataset.taskId);
+              this.toggleTaskCompletion(taskId);
+          });
+      });
+
+      // Edit task
+      document.querySelectorAll('.edit-task').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const taskId = parseInt(e.currentTarget.dataset.taskId);
+              this.openEditModal(taskId);
+          });
+      });
+
+      // Delete task
+      document.querySelectorAll('.delete-task').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              const taskId = parseInt(e.currentTarget.dataset.taskId);
+              this.deleteTask(taskId);
+          });
+      });
+  }
+
+  toggleTaskCompletion(taskId) {
+      const task = this.tasks.find(t => t.id === taskId);
+      if (task) {
+          task.completed = !task.completed;
+          this.saveTasks();
+          this.updateStats();
+          this.renderTasks();
+          
+          const message = task.completed ? '✅ Tarea completada' : '🔄 Tarea reactivada';
+          this.showNotification(message, 'success');
+      }
+  }
+
+  deleteTask(taskId) {
+      if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
+          this.tasks = this.tasks.filter(t => t.id !== taskId);
+          this.saveTasks();
+          this.updateStats();
+          this.renderTasks();
+          this.updateEmptyState();
+          this.showNotification('🗑️ Tarea eliminada', 'warning');
+      }
+  }
+
+  openEditModal(taskId) {
+      const task = this.tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      this.editingTaskId = taskId;
       
-      return li;
+      document.getElementById('edit-task-id').value = taskId;
+      document.getElementById('edit-task-input').value = task.title;
+      document.getElementById('edit-task-priority').value = task.priority;
+      document.getElementById('edit-task-category').value = task.category;
+
+      const modal = document.getElementById('edit-modal');
+      modal.classList.remove('opacity-0', 'pointer-events-none');
+      modal.querySelector('div').classList.remove('scale-95');
+      modal.querySelector('div').classList.add('scale-100');
+  }
+
+  closeEditModal() {
+      const modal = document.getElementById('edit-modal');
+      modal.classList.add('opacity-0', 'pointer-events-none');
+      modal.querySelector('div').classList.remove('scale-100');
+      modal.querySelector('div').classList.add('scale-95');
+      this.editingTaskId = null;
+  }
+
+  saveEditedTask() {
+      const taskId = this.editingTaskId;
+      const task = this.tasks.find(t => t.id === taskId);
+      
+      if (!task) return;
+
+      task.title = document.getElementById('edit-task-input').value.trim();
+      task.priority = document.getElementById('edit-task-priority').value;
+      task.category = document.getElementById('edit-task-category').value;
+
+      this.saveTasks();
+      this.renderTasks();
+      this.closeEditModal();
+      this.showNotification('✏️ Tarea actualizada', 'success');
+  }
+
+  exportTasks() {
+      const dataStr = JSON.stringify(this.tasks, null, 2);
+      const dataBlob = new Blob([dataStr], {type: 'application/json'});
+      
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(dataBlob);
+      link.download = `quicktask-export-${new Date().toISOString().split('T')[0]}.json`;
+      link.click();
+      
+      this.showNotification('📤 Tareas exportadas', 'success');
+  }
+
+  clearCompletedTasks() {
+      const completedCount = this.tasks.filter(t => t.completed).length;
+      
+      if (completedCount === 0) {
+          this.showNotification('ℹ️ No hay tareas completadas', 'info');
+          return;
+      }
+
+      if (confirm(`¿Eliminar ${completedCount} tarea(s) completada(s)?`)) {
+          this.tasks = this.tasks.filter(t => !t.completed);
+          this.saveTasks();
+          this.updateStats();
+          this.renderTasks();
+          this.updateEmptyState();
+          this.showNotification(`🧹 ${completedCount} tarea(s) eliminada(s)`, 'success');
+      }
   }
 
   updateStats() {
       const totalTasks = this.tasks.length;
-      const completedTasks = this.tasks.filter(task => task.completed).length;
-      
-      document.getElementById('total-tasks').textContent = totalTasks;
-      document.getElementById('completed-tasks').textContent = completedTasks;
+      const completedTasks = this.tasks.filter(t => t.completed).length;
+
+      document.getElementById('total-tasks').textContent = `${totalTasks} Tarea${totalTasks !== 1 ? 's' : ''}`;
+      document.getElementById('completed-tasks').textContent = `${completedTasks} Completada${completedTasks !== 1 ? 's' : ''}`;
   }
 
   updateEmptyState() {
-      const taskList = document.getElementById('task-list');
-      const emptyState = document.getElementById('empty-state');
-      
-      if (taskList.children.length === 0) {
-          emptyState.style.display = 'block';
-      } else {
-          emptyState.style.display = 'none';
-      }
+      // Este método ya no es necesario porque renderFilteredTasks maneja el estado vacío
   }
 
-  saveTasksQuickly() {
-      try {
-          localStorage.setItem('quicktask-data', JSON.stringify({
-              tasks: this.tasks,
-              lastSaved: new Date().toISOString(),
-              version: '1.0.0'
-          }));
-      } catch (error) {
-          this.showQuickNotification('⚠️ Error al guardar tareas', 'error');
-          console.error('Error saving tasks:', error);
-      }
-  }
+  showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      const icon = document.getElementById('notification-icon');
+      const messageEl = document.getElementById('notification-message');
 
-  loadTasks() {
-      try {
-          const saved = localStorage.getItem('quicktask-data');
-          if (saved) {
-              const data = JSON.parse(saved);
-              this.tasks = data.tasks || [];
-              console.log('⚡ Tareas cargadas rápidamente desde QuickTask');
-          }
-      } catch (error) {
-          console.error('Error loading tasks:', error);
-          this.tasks = [];
-      }
-  }
+      const config = {
+          success: { icon: 'fas fa-check-circle', bg: 'bg-green-500' },
+          warning: { icon: 'fas fa-exclamation-triangle', bg: 'bg-yellow-500' },
+          error: { icon: 'fas fa-times-circle', bg: 'bg-red-500' },
+          info: { icon: 'fas fa-info-circle', bg: 'bg-blue-500' }
+      };
 
-  showQuickNotification(message, type = 'info') {
-      // Crear notificación temporal
-      const notification = document.createElement('div');
-      notification.className = `quick-notification ${type}`;
-      notification.textContent = message;
-      
-      // Estilos de la notificación
-      notification.style.cssText = `
-          position: fixed;
-          top: 100px;
-          right: 20px;
-          background: ${type === 'success' ? '#27ae60' : type === 'warning' ? '#f39c12' : type === 'error' ? '#e74c3c' : '#3498db'};
-          color: white;
-          padding: 12px 20px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 14px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-          z-index: 1001;
-          animation: quickSlideIn 0.3s ease;
-          max-width: 300px;
-      `;
-      
-      document.body.appendChild(notification);
-      
-      // Eliminar después de 3 segundos
+      const { icon: iconClass, bg } = config[type] || config.info;
+
+      icon.className = iconClass;
+      messageEl.textContent = message;
+      notification.className = `fixed top-6 right-6 z-50 px-6 py-4 rounded-lg text-white font-semibold
+                               transform transition-all duration-500 flex items-center gap-3 ${bg}`;
+
+      // Show notification
+      notification.classList.remove('translate-x-full', 'opacity-0');
+
+      // Hide after 3 seconds
       setTimeout(() => {
-          notification.style.animation = 'quickSlideOut 0.3s ease';
-          setTimeout(() => {
-              if (notification.parentNode) {
-                  notification.parentNode.removeChild(notification);
-              }
-          }, 300);
+          notification.classList.add('translate-x-full', 'opacity-0');
       }, 3000);
   }
 
-  escapeHtml(text) {
-      const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
-      };
-      return text.replace(/[&<>"']/g, m => map[m]);
+  saveTasks() {
+      localStorage.setItem('quicktask-tasks', JSON.stringify(this.tasks));
   }
 
-  // Método para obtener estadísticas rápidas
-  getQuickStats() {
-      const total = this.tasks.length;
-      const completed = this.tasks.filter(t => t.completed).length;
-      const pending = total - completed;
-      const byPriority = {
-          alta: this.tasks.filter(t => t.priority === 'alta' && !t.completed).length,
-          media: this.tasks.filter(t => t.priority === 'media' && !t.completed).length,
-          baja: this.tasks.filter(t => t.priority === 'baja' && !t.completed).length
-      };
-      
-      return { total, completed, pending, byPriority };
+  loadTasks() {
+      const saved = localStorage.getItem('quicktask-tasks');
+      this.tasks = saved ? JSON.parse(saved) : [];
   }
 }
 
-// Añadir estilos para las notificaciones
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-  @keyframes quickSlideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-  }
-  
-  @keyframes quickSlideOut {
-      from { transform: translateX(0); opacity: 1; }
-      to { transform: translateX(100%); opacity: 0; }
-  }
-`;
-document.head.appendChild(notificationStyles);
-
-// Initialize the app when DOM is loaded
+// Initialize app
 document.addEventListener('DOMContentLoaded', () => {
-  window.quickTaskManager = new QuickTaskManager();
-  
-  // Mensaje de bienvenida en consola
-  console.log(`
-  ⚡ QuickTask v1.0.0 - ¡Cargado exitosamente!
-  🚀 Tu gestor de tareas rápido y eficiente
-  💡 Usa Ctrl+Enter para añadir tareas rápidamente
-  📊 Escribe quickTaskManager.getQuickStats() para ver estadísticas
-  `);
-});
-
-// Add keyboard shortcuts
-document.addEventListener('keydown', (e) => {
-  // Ctrl/Cmd + Enter to add task quickly
-  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-      const taskInput = document.getElementById('task-input');
-      if (taskInput.value.trim()) {
-          quickTaskManager.addTaskQuickly();
-      } else {
-          taskInput.focus();
-          quickTaskManager.showQuickNotification('⚡ ¡Escribe una tarea rápida!', 'info');
-      }
-  }
-  
-  // Escape to close modal
-  if (e.key === 'Escape') {
-      quickTaskManager.closeModal();
-  }
-  
-  // Ctrl + F to focus search
-  if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-      e.preventDefault();
-      document.getElementById('search-input').focus();
-      quickTaskManager.showQuickNotification('🔍 Búsqueda rápida activada', 'info');
-  }
+    new QuickTaskManager();
 });

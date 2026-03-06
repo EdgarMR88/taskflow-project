@@ -1,292 +1,155 @@
-# ⚡ QuickTask Project
+# ⚡ QuickTask - Gestión Rápida de Tareas
 
-**Tu gestor de tareas rápido, eficiente y moderno**
+**Tu gestor de tareas moderno con Tailwind CSS y modo oscuro**
 
-Una aplicación web completa para la gestión ágil de tareas personales, diseñada para personas que valoran la velocidad y la eficiencia en su productividad diaria.
+Una aplicación web minimalista y eficiente para la gestión de tareas personales, construida con tecnologías modernas y diseño responsive.
 
-![QuickTask Preview](https://via.placeholder.com/800x400/f39c12/ffffff?text=⚡+QuickTask+Preview)
 
 ## 🚀 Demo en Vivo
 🔗 **[Ver QuickTask en Acción](tu-enlace-de-vercel-aqui)**
 
 ---
 
-## ⚡ ¿Por qué QuickTask?
-
-QuickTask nace de la necesidad de tener un gestor de tareas que sea **rápido**, **intuitivo** y **sin complicaciones**. Perfecto para profesionales, estudiantes y cualquier persona que quiera organizar su día de forma eficiente.
-
----
-
 ## ✨ Características Principales
 
-### 🏃‍♂️ **Gestión Rápida de Tareas**
-- ⚡ **Creación instantánea** con `Ctrl + Enter`
-- ✏️ **Edición rápida** con modal dedicado
-- 🗑️ **Eliminación con animación** para mejor UX
-- ☑️ **Completar/Reabrir** tareas con un clic
-- 🔄 **Notificaciones instantáneas** de cada acción
+### 🎨 **Diseño Moderno**
+- ⚡ **Tailwind CSS** - Sistema de diseño profesional
+- 🌙 **Modo Oscuro** - Toggle automático con persistencia
+- 📱 **Responsive** - Perfecto en todos los dispositivos
+- 🎯 **Animaciones suaves** - Transiciones en hover y focus
 
-### 🎨 **Diseño Moderno QuickTask**
-- 🌟 **Tema naranja eléctrico** inspirado en la velocidad
-- 📱 **Diseño responsive** para todos los dispositivos
-- 💫 **Animaciones fluidas** y transiciones elegantes
-- 🎭 **Efectos visuales** sutiles y profesionales
-- ⚡ **Iconos animados** que dan vida a la interfaz
+### 🏃‍♂️ **Gestión Rápida**
+- ➕ **Creación instantánea** de tareas
+- 🔍 **Búsqueda en tiempo real**
+- 🏷️ **Filtros inteligentes** (estado, categoría, prioridad)
+- ✅ **Toggle rápido** de completado
 
-### 🔍 **Búsqueda y Filtrado Inteligente**
-- 🔎 **Búsqueda en tiempo real** por título, categoría y prioridad
-- 📂 **Filtros por estado**: Todas, Pendientes, Completadas
-- 🏷️ **Filtros por categoría**: Personal, Trabajo, Hogar, Salud, Estudios
-- 🎚️ **Combinación múltiple** de filtros
-- 📈 **Contador de resultados** en tiempo real
-
-### 🏆 **Sistema de Prioridades Visuales**
-- 🔴 **Alta prioridad** - Borde rojo, para tareas urgentes
-- 🟡 **Media prioridad** - Borde amarillo, para tareas importantes
-- 🟢 **Baja prioridad** - Borde verde, para tareas rutinarias
-
-### 📊 **Dashboard y Estadísticas**
-- 📈 **Contador en tiempo real** de tareas totales
-- ✅ **Progreso de completadas** siempre visible
-- 📋 **Estado vacío amigable** cuando empiezas
-- 🎯 **Estadísticas detalladas** disponibles en consola
-
-### 💾 **Persistencia Inteligente**
-- 🏪 **AutoGuardado** en LocalStorage tras cada acción
-- 🔄 **Carga automática** al abrir la aplicación
-- 📤 **Exportación completa** con metadatos en JSON
-- 🧹 **Limpieza rápida** de tareas completadas
+### 📊 **Organización Inteligente**
+- 🎯 **3 niveles de prioridad** (Alta, Media, Baja)
+- 📂 **5 categorías** (Personal, Trabajo, Hogar, Salud, Estudios)
+- 👁️ **2 vistas** (Grid y Lista)
+- 📈 **Estadísticas en tiempo real**
 
 ---
 
 ## 🛠️ Tecnologías Utilizadas
 
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| **HTML5** | Latest | Estructura semántica optimizada |
-| **CSS3** | Latest | Estilos modernos con tema QuickTask |
-| **JavaScript** | ES6+ | Lógica OOP con clase QuickTaskManager |
-| **Font Awesome** | 6.0.0 | Iconografía profesional |
-| **LocalStorage** | Native | Persistencia de datos local |
-
----
-
-## 🏗️ Arquitectura del Proyecto
-
-```
-quicktask-project/
-├── 📄 index.html          # Estructura HTML principal
-├── 🎨 style.css           # Estilos CSS con tema QuickTask
-├── ⚡ app.js              # Lógica JavaScript (Clase QuickTaskManager)
-├── 📚 README.md           # Documentación del proyecto
-└── 📁 assets/             # Recursos adicionales (opcional)
-  └── 🖼️ images/         # Imágenes del proyecto
-```
+- **HTML5** - Estructura semántica
+- **Tailwind CSS** - Framework de utilidades CSS
+- **JavaScript ES6+** - Lógica de aplicación
+- **LocalStorage** - Persistencia de datos
+- **Font Awesome** - Iconografía
 
 ---
 
 ## 🚀 Instalación y Uso
 
-### **Opción 1: Clonar el Repositorio**
+### Opción 1: Uso Directo
 ```bash
-# Clonar el repositorio
-git clone https://github.com/EdgarMR88/quicktask-project
+# Clona el repositorio
+git clone https://github.com/EdgarMR88/taskflow-project
 
-# Navegar al directorio
-cd quicktask-project
+# Navega al directorio
+cd quicktask
 
-# Abrir en el navegador
-# Simplemente abre index.html en tu navegador favorito
+# Abre index.html en tu navegador
+open index.html
 ```
 
-### **Opción 2: Descargar ZIP**
-1. Descarga el archivo ZIP del repositorio
-2. Extrae los archivos
-3. Abre `index.html` en tu navegador
-
-### **Opción 3: Servidor Local (Recomendado)**
+### Opción 2: Servidor Local
 ```bash
-# Con Python 3
+# Con Python
 python -m http.server 8000
 
-# Con Node.js (si tienes live-server instalado)
-npx live-server
+# Con Node.js (http-server)
+npx http-server
 
-# Luego visita: http://localhost:8000
+# Visita http://localhost:8000
 ```
 
 ---
 
-## 📖 Guía de Uso
+## 📁 Estructura del Proyecto
 
-### 1. 🆕 **Crear una Nueva Tarea Rápida**
-1. Escribe el título de la tarea en el campo "¿Qué necesitas hacer rápidamente?"
-2. Selecciona la prioridad (Alta, Media, Baja)
-3. Elige una categoría (Personal, Trabajo, Hogar, etc.)
-4. Haz clic en "⚡ Añadir Rápido" o presiona `Ctrl + Enter`
-
-### 2. 🔍 **Buscar Tareas Rápidamente**
-- Escribe en el campo "Buscar tareas rápidamente..."
-- Los resultados se filtran automáticamente mientras escribes
-- La búsqueda incluye título, categoría y prioridad
-- Búsqueda insensible a mayúsculas/minúsculas
-
-### 3. 🎛️ **Filtrar Tareas**
-- **Por Estado**: Usa los botones "Todas", "Pendientes", "Completadas"
-- **Por Categoría**: Selecciona una categoría específica en la barra lateral
-- **Combinar**: Puedes usar búsqueda + filtros simultáneamente
-
-### 4. ✏️ **Editar una Tarea**
-1. Haz clic en el botón "⚡ Editar" de cualquier tarea
-2. Modifica los campos en el modal que aparece
-3. Guarda con "⚡ Guardar Rápido" o cancela la edición
-
-### 5. ✅ **Completar Tareas**
-- Haz clic en "Completar" para marcar una tarea como terminada
-- Las tareas completadas se muestran con estilo diferente
-- Puedes "Reabrir" tareas completadas si es necesario
-
-### 6. 📤 **Exportar Datos**
-- Haz clic en "📤 Exportar Tareas" para descargar un archivo JSON
-- El archivo contiene todas tus tareas con metadatos completos y estadísticas
+```
+quicktask/
+├── index.html          # Interfaz principal con Tailwind
+├── app.js             # Lógica de la aplicación
+└── README.md          # Documentación
+```
 
 ---
 
-## ⌨️ Atajos de Teclado
+## 🎯 Funcionalidades Clave
 
-| Atajo | Acción |
-|-------|--------|
-| `Ctrl + Enter` | Añadir tarea rápidamente |
-| `Ctrl + F` | Enfocar búsqueda rápida |
-| `Escape` | Cerrar modal de edición |
+### ⚡ Gestión de Tareas
+- **Crear**: Formulario rápido con categoría y prioridad
+- **Editar**: Modal intuitivo para modificaciones
+- **Completar**: Toggle visual instantáneo
+- **Eliminar**: Confirmación de seguridad
+
+### 🔍 Filtrado Avanzado
+- **Por estado**: Todas, Pendientes, Completadas
+- **Por categoría**: Personal, Trabajo, Hogar, Salud, Estudios
+- **Búsqueda**: Tiempo real en título, categoría y prioridad
+
+### 💾 Persistencia
+- **LocalStorage**: Datos guardados automáticamente
+- **Exportar**: Descarga en formato JSON
+- **Limpiar**: Eliminar tareas completadas
 
 ---
 
-## 🎨 Personalización
+## 🌙 Modo Oscuro
 
-### **Cambiar Colores del Tema QuickTask**
-Modifica las variables CSS en `style.css`:
+QuickTask incluye un sistema completo de modo oscuro:
 
+- 🔘 **Toggle manual** en el header
+- 💾 **Persistencia** de preferencia
+- 🎨 **Transiciones suaves** entre temas
+- 🌓 **Iconos dinámicos** (sol/luna)
+
+---
+
+## 📱 Responsive Design
+
+Optimizado para todos los dispositivos:
+
+- 📱 **Móvil**: Layout vertical, navegación táctil
+- 📟 **Tablet**: Diseño adaptativo intermedio  
+- 💻 **Desktop**: Grid completo, sidebar fijo
+
+---
+
+## 🎨 Sistema de Colores
+
+### Paleta Principal
 ```css
-:root {
-  /* Tema QuickTask Original */
-  --color-principal: #f39c12;    /* Naranja eléctrico */
-  --color-secundario: #e67e22;   /* Naranja oscuro */
-  --color-acento: #f1c40f;       /* Amarillo rayo */
-  
-  /* Tema Azul Rápido (alternativo) */
-  /* --color-principal: #3498db; */
-  /* --color-secundario: #2980b9; */
-  /* --color-acento: #74b9ff; */
-}
+primary: #6c5ce7    /* Púrpura principal */
+lightning: #f1c40f  /* Amarillo rayo */
+success: #00b894    /* Verde éxito */
+warning: #fdcb6e    /* Amarillo advertencia */
+danger: #e17055     /* Rojo peligro */
 ```
 
-### **Añadir Nuevas Categorías**
-En el archivo `app.js`, modifica el objeto `categoryIcons`:
-
-```javascript
-const categoryIcons = {
-  personal: '👤',
-  trabajo: '💼',
-  hogar: '🏠',
-  salud: '🏥',
-  estudios: '📚',
-  // Añade nuevas categorías aquí
-  deporte: '🏃‍♂️',
-  viajes: '✈️',
-  finanzas: '💰'
-};
-```
+### Modo Oscuro
+- Fondos: `gray-800`, `gray-900`
+- Textos: `gray-100`, `gray-300`
+- Bordes: `gray-600`, `gray-700`
 
 ---
 
-## 🧪 Características Técnicas
-
-### 📱 **Responsive Design**
-- **Mobile First**: Diseñado primero para móviles
-- **Breakpoints**: 480px, 768px, 1024px
-- **Flexbox & Grid**: Layouts modernos y flexibles
-
-### 🔒 **Seguridad**
-- **Escape de HTML**: Prevención de ataques XSS
-- **Validación**: Validación de entrada de datos
-- **Sanitización**: Limpieza de datos del usuario
-
-### ⚡ **Performance**
-- **Vanilla JavaScript**: Sin dependencias pesadas
-- **LocalStorage**: Almacenamiento local eficiente
-- **Animaciones optimizadas**: Transiciones suaves sin lag
-
-### 🎯 **Programación Orientada a Objetos**
-- **Clase QuickTaskManager**: Encapsulación de toda la lógica
-- **Métodos organizados**: Separación clara de responsabilidades
-- **Estado centralizado**: Gestión consistente del estado
-- **Notificaciones inteligentes**: Sistema de feedback inmediato
-
----
-
-## 🤝 Contribuir
-
-¡Las contribuciones son bienvenidas! Si quieres mejorar QuickTask:
-
-1. **Fork** el repositorio
-2. Crea una **rama** para tu feature (`git checkout -b feature/nueva-caracteristica`)
-3. **Commit** tus cambios (`git commit -m 'Añadir nueva característica'`)
-4. **Push** a la rama (`git push origin feature/nueva-caracteristica`)
-5. Abre un **Pull Request**
-
-### 🐛 **Reportar Bugs**
-Si encuentras un error, por favor:
-- Abre un **Issue** en GitHub
-- Describe el problema detalladamente
-- Incluye pasos para reproducir el error
-- Añade capturas de pantalla si es posible
-
----
-
-## 📋 Roadmap Futuro
-
-- [ ] 🌙 **Modo oscuro** toggle
-- [ ] 📅 **Fechas de vencimiento** para tareas
-- [ ] 🔔 **Notificaciones** del navegador
-- [ ] 📊 **Gráficos** de productividad
-- [ ] 🔄 **Sincronización** en la nube
-- [ ] 👥 **Colaboración** entre usuarios
-- [ ] 📱 **PWA** (Progressive Web App)
-- [ ] 🎯 **Subtareas** anidadas
-- [ ] 🏷️ **Tags personalizados** para tareas
-- [ ] 📈 **Analytics** de productividad
-
----
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
 
 ---
 
 ## 👨‍💻 Autor
 
-**Edgar Montoya Rodriguez**
+Edgar Montoya Rodriguez
 - GitHub: [@EdgarMR88](https://github.com/EdgarMR88)
-- LinkedIn: [linkedin.com/in/edgarmr88](https://linkedin.com/in/edgarmr88)
-- Email: edgamr88@gmail.com
+- LinkedIn: [Edgar Montoya Rodríguez](www.linkedin.com/in/edgarmr88)
 
 ---
-
-## 🙏 Agradecimientos
-
-- **Font Awesome** por los iconos profesionales
-- **Vercel** por el hosting gratuito
-- **MDN Web Docs** por la documentación excelente
-- **CSS-Tricks** por las guías de CSS moderno
-
----
-
-⚡ **¡Si QuickTask te ayuda a ser más productivo, dale una estrella en GitHub!** ⭐
-
----
-
-### 🚀 **¿Listo para ser más rápido con tus tareas?**
-
-**[🔗 Prueba QuickTask ahora](tu-enlace-de-vercel-aqui)** y experimenta la diferencia de un gestor de tareas verdaderamente rápido.
