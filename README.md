@@ -2,154 +2,94 @@
 
 **Tu gestor de tareas moderno con Tailwind CSS y modo oscuro**
 
-Una aplicación web minimalista y eficiente para la gestión de tareas personales, construida con tecnologías modernas y diseño responsive.
-
+Una aplicación web minimalista para la gestión eficiente de tareas personales con diseño responsive y tecnologías modernas.
 
 ## 🚀 Demo en Vivo
-🔗 **[Ver QuickTask en Acción](tu-enlace-de-vercel-aqui)**
+🔗 **[Ver QuickTask en Acción](https://taskflow-project-git-tailwind-css-version-edgarmr88s-projects.vercel.app/)**
 
 ---
 
 ## ✨ Características Principales
 
-### 🎨 **Diseño Moderno**
-- ⚡ **Tailwind CSS** - Sistema de diseño profesional
-- 🌙 **Modo Oscuro** - Toggle automático con persistencia
-- 📱 **Responsive** - Perfecto en todos los dispositivos
-- 🎯 **Animaciones suaves** - Transiciones en hover y focus
-
-### 🏃‍♂️ **Gestión Rápida**
-- ➕ **Creación instantánea** de tareas
-- 🔍 **Búsqueda en tiempo real**
-- 🏷️ **Filtros inteligentes** (estado, categoría, prioridad)
-- ✅ **Toggle rápido** de completado
-
-### 📊 **Organización Inteligente**
-- 🎯 **3 niveles de prioridad** (Alta, Media, Baja)
-- 📂 **5 categorías** (Personal, Trabajo, Hogar, Salud, Estudios)
-- 👁️ **2 vistas** (Grid y Lista)
-- 📈 **Estadísticas en tiempo real**
+- ⚡ **Tailwind CSS** - Diseño profesional y responsive
+- 🌙 **Modo Oscuro** - Toggle con persistencia automática
+- 🔍 **Búsqueda en tiempo real** - Filtra instantáneamente
+- 🏷️ **Filtros inteligentes** - Por estado, categoría y prioridad
+- 📊 **3 niveles de prioridad** - Alta, Media, Baja
+- 📂 **5 categorías** - Personal, Trabajo, Hogar, Salud, Estudios
+- 👁️ **2 vistas** - Grid y Lista
+- 💾 **Persistencia local** - Datos guardados automáticamente
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+## 🛠️ Tecnologías
 
-- **HTML5** - Estructura semántica
-- **Tailwind CSS** - Framework de utilidades CSS
-- **JavaScript ES6+** - Lógica de aplicación
-- **LocalStorage** - Persistencia de datos
-- **Font Awesome** - Iconografía
+- **HTML5** + **Tailwind CSS** + **JavaScript ES6+**
+- **LocalStorage** para persistencia
+- **Font Awesome** para iconografía
 
 ---
 
-## 🚀 Instalación y Uso
+## 🚀 Uso Rápido
 
-### Opción 1: Uso Directo
 ```bash
-# Clona el repositorio
+# Clonar repositorio
 git clone https://github.com/EdgarMR88/taskflow-project
 
-# Navega al directorio
-cd quicktask
+# Navegar al directorio
+cd taskflow-project
 
-# Abre index.html en tu navegador
+# Abrir en navegador
 open index.html
 ```
 
-### Opción 2: Servidor Local
+**O usar servidor local:**
 ```bash
-# Con Python
 python -m http.server 8000
-
-# Con Node.js (http-server)
-npx http-server
-
 # Visita http://localhost:8000
 ```
 
 ---
 
-## 📁 Estructura del Proyecto
+## 📁 Estructura
 
 ```
-quicktask/
-├── index.html          # Interfaz principal con Tailwind
-├── app.js             # Lógica de la aplicación
-└── README.md          # Documentación
+taskflow-project/
+├── index.html    # Interfaz principal
+├── app.js        # Lógica de aplicación
+└── README.md     # Documentación
 ```
 
 ---
 
-## 🎯 Funcionalidades Clave
+## 🎯 Funcionalidades
 
 ### ⚡ Gestión de Tareas
-- **Crear**: Formulario rápido con categoría y prioridad
-- **Editar**: Modal intuitivo para modificaciones
-- **Completar**: Toggle visual instantáneo
-- **Eliminar**: Confirmación de seguridad
+- **Crear** tareas con categoría y prioridad
+- **Editar** con modal intuitivo
+- **Completar** con toggle visual
+- **Eliminar** con confirmación
 
 ### 🔍 Filtrado Avanzado
-- **Por estado**: Todas, Pendientes, Completadas
-- **Por categoría**: Personal, Trabajo, Hogar, Salud, Estudios
-- **Búsqueda**: Tiempo real en título, categoría y prioridad
+- **Estados**: Todas, Pendientes, Completadas
+- **Categorías**: Personal, Trabajo, Hogar, Salud, Estudios
+- **Búsqueda**: En tiempo real por título y contenido
 
-### 💾 Persistencia
-- **LocalStorage**: Datos guardados automáticamente
-- **Exportar**: Descarga en formato JSON
-- **Limpiar**: Eliminar tareas completadas
-
----
-
-## 🌙 Modo Oscuro
-
-QuickTask incluye un sistema completo de modo oscuro:
-
-- 🔘 **Toggle manual** en el header
-- 💾 **Persistencia** de preferencia
-- 🎨 **Transiciones suaves** entre temas
-- 🌓 **Iconos dinámicos** (sol/luna)
-
----
-
-## 📱 Responsive Design
-
-Optimizado para todos los dispositivos:
-
-- 📱 **Móvil**: Layout vertical, navegación táctil
-- 📟 **Tablet**: Diseño adaptativo intermedio  
-- 💻 **Desktop**: Grid completo, sidebar fijo
-
----
-
-## 🎨 Sistema de Colores
-
-### Paleta Principal
-```css
-primary: #6c5ce7    /* Púrpura principal */
-lightning: #f1c40f  /* Amarillo rayo */
-success: #00b894    /* Verde éxito */
-warning: #fdcb6e    /* Amarillo advertencia */
-danger: #e17055     /* Rojo peligro */
-```
-
-### Modo Oscuro
-- Fondos: `gray-800`, `gray-900`
-- Textos: `gray-100`, `gray-300`
-- Bordes: `gray-600`, `gray-700`
-
----
-
-
-## 📄 Licencia
-
-Este proyecto está bajo la Licencia MIT - ver el archivo [LICENSE](LICENSE) para más detalles.
+### 💾 Datos
+- **Auto-guardado** en LocalStorage
+- **Exportar** a JSON
+- **Limpiar** tareas completadas
 
 ---
 
 ## 👨‍💻 Autor
 
-Edgar Montoya Rodriguez
+**Edgar Montoya Rodriguez**
 - GitHub: [@EdgarMR88](https://github.com/EdgarMR88)
-- LinkedIn: [Edgar Montoya Rodríguez](www.linkedin.com/in/edgarmr88)
+- LinkedIn: [Edgar Montoya Rodríguez](https://www.linkedin.com/in/edgarmr88)
 
 ---
+
+## 📄 Licencia
+
+MIT License - ver [LICENSE](LICENSE) para más detalles.
