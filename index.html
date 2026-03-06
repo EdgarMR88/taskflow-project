@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TaskMaster Pro - Gestión Avanzada de Tareas</title>
+  <title>QuickTask - Gestión Rápida de Tareas</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 </head>
@@ -11,7 +11,7 @@
   <div class="app-container">
       <header class="main-header">
           <div class="header-content">
-              <h1><i class="fas fa-tasks"></i> TaskMaster Pro</h1>
+              <h1><i class="fas fa-bolt"></i> QuickTask</h1>
               <div class="header-stats">
                   <span class="stat-item">
                       <i class="fas fa-list-check"></i>
@@ -28,10 +28,10 @@
       <main class="contenedor-principal">
           <aside class="sidebar">
               <div class="task-form-container">
-                  <h3><i class="fas fa-plus-circle"></i> Nueva Tarea</h3>
+                  <h3><i class="fas fa-plus-circle"></i> Nueva Tarea Rápida</h3>
                   <form id="task-form" class="task-form">
                       <div class="form-group">
-                          <input type="text" id="task-input" placeholder="¿Qué necesitas hacer?" required>
+                          <input type="text" id="task-input" placeholder="¿Qué necesitas hacer rápidamente?" required>
                       </div>
                       <div class="form-group">
                           <select id="task-priority">
@@ -50,16 +50,16 @@
                           </select>
                       </div>
                       <button type="submit" class="btn-primary">
-                          <i class="fas fa-plus"></i> Añadir Tarea
+                          <i class="fas fa-bolt"></i> Añadir Rápido
                       </button>
                   </form>
               </div>
 
               <div class="filters-container">
-                  <h3><i class="fas fa-filter"></i> Filtros</h3>
+                  <h3><i class="fas fa-filter"></i> Filtros Rápidos</h3>
                   <div class="search-container">
                       <i class="fas fa-search"></i>
-                      <input type="text" id="search-input" placeholder="Buscar tareas...">
+                      <input type="text" id="search-input" placeholder="Buscar tareas rápidamente...">
                   </div>
                   
                   <div class="filter-buttons">
@@ -91,7 +91,7 @@
 
           <section class="tasks-section">
               <div class="tasks-header">
-                  <h2>Mis Tareas</h2>
+                  <h2>Mis Tareas Rápidas</h2>
                   <div class="view-toggle">
                       <button id="grid-view" class="view-btn active">
                           <i class="fas fa-th"></i>
@@ -103,9 +103,9 @@
               </div>
 
               <div id="empty-state" class="empty-state">
-                  <i class="fas fa-clipboard-list"></i>
+                  <i class="fas fa-bolt"></i>
                   <h3>¡No hay tareas!</h3>
-                  <p>Crea tu primera tarea para comenzar</p>
+                  <p>Crea tu primera tarea rápida para comenzar</p>
               </div>
 
               <ul id="task-list" class="task-grid">
@@ -119,7 +119,7 @@
   <div id="edit-modal" class="modal">
       <div class="modal-content">
           <div class="modal-header">
-              <h3>Editar Tarea</h3>
+              <h3><i class="fas fa-bolt"></i> Editar Tarea Rápida</h3>
               <button class="close-modal">&times;</button>
           </div>
           <form id="edit-form">
@@ -147,7 +147,9 @@
               </div>
               <div class="modal-actions">
                   <button type="button" class="btn-secondary" id="cancel-edit">Cancelar</button>
-                  <button type="submit" class="btn-primary">Guardar Cambios</button>
+                  <button type="submit" class="btn-primary">
+                      <i class="fas fa-bolt"></i> Guardar Rápido
+                  </button>
               </div>
           </form>
       </div>
