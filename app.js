@@ -107,6 +107,7 @@ class QuickTaskManager {
       const titleInput = document.getElementById('task-input');
       const prioritySelect = document.getElementById('task-priority');
       const categorySelect = document.getElementById('task-category');
+      const dueDateInput = document.getElementById('task-due-date');
 
       const title = titleInput.value.trim();
       if (!title) return;
@@ -116,6 +117,7 @@ class QuickTaskManager {
           title: title,
           priority: prioritySelect.value,
           category: categorySelect.value,
+          dueDate: dueDateInput?.value ? new Date(dueDateInput.value).toISOString() : null,
           completed: false,
           createdAt: new Date().toISOString()
       };
@@ -130,6 +132,7 @@ class QuickTaskManager {
       titleInput.value = '';
       prioritySelect.value = 'media';
       categorySelect.value = 'personal';
+      if (dueDateInput) dueDateInput.value = '';
 
       this.showNotification('✅ Tarea añadida rápidamente', 'success');
       titleInput.focus();
@@ -305,6 +308,15 @@ class QuickTaskManager {
       const completedClass = task.completed ? 'opacity-60' : '';
       const textDecoration = task.completed ? 'line-through' : '';
 
+      const dueDateInfo = this.getDueDateInfo(task);
+      const dueDatePill = dueDateInfo
+          ? `
+              <span class="text-xs font-semibold px-2 py-1 rounded-full ${dueDateInfo.className}">
+                  ${dueDateInfo.label}
+              </span>
+          `
+          : '';
+
       return `
           <div class="task-card bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border-l-4 ${priorityColors[task.priority]} ${completedClass} 
                       transform hover:scale-105 transition-all duration-300 hover:shadow-lg" 
@@ -320,6 +332,7 @@ class QuickTaskManager {
                       <span class="text-sm font-medium px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-700">
                           ${priorityIcons[task.priority]} ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                       </span>
+                      ${dueDatePill}
                   </div>
                   
                   <div class="flex gap-1">
@@ -343,6 +356,36 @@ class QuickTaskManager {
               </div>
           </div>
       `;
+  }
+
+  getDueDateInfo(task) {
+      if (!task?.dueDate) return null;
+      if (typeof daysUntilTaskExpiration !== 'function') return null;
+
+      const days = daysUntilTaskExpiration(task.dueDate);
+      if (days === null) {
+          return { label: 'Fecha inválida', className: 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200' };
+      }
+
+      if (days < 0) {
+          const abs = Math.abs(days);
+          return {
+              label: `Venció hace ${abs} día${abs !== 1 ? 's' : ''}`,
+              className: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200'
+          };
+      }
+
+      if (days === 0) {
+          return {
+              label: 'Vence hoy',
+              className: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-200'
+          };
+      }
+
+      return {
+          label: `Vence en ${days} día${days !== 1 ? 's' : ''}`,
+          className: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200'
+      };
   }
 
   bindTaskEvents() {
@@ -405,6 +448,10 @@ class QuickTaskManager {
       document.getElementById('edit-task-input').value = task.title;
       document.getElementById('edit-task-priority').value = task.priority;
       document.getElementById('edit-task-category').value = task.category;
+      const editDueDateEl = document.getElementById('edit-task-due-date');
+      if (editDueDateEl) {
+          editDueDateEl.value = task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : '';
+      }
 
       const modal = document.getElementById('edit-modal');
       modal.classList.remove('opacity-0', 'pointer-events-none');
@@ -429,6 +476,8 @@ class QuickTaskManager {
       task.title = document.getElementById('edit-task-input').value.trim();
       task.priority = document.getElementById('edit-task-priority').value;
       task.category = document.getElementById('edit-task-category').value;
+      const editDueDateEl = document.getElementById('edit-task-due-date');
+      task.dueDate = editDueDateEl?.value ? new Date(editDueDateEl.value).toISOString() : null;
 
       this.saveTasks();
       this.renderTasks();
