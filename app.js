@@ -1,4 +1,9 @@
-class QuickTaskManager {
+/**
+ * Gestor principal de la aplicación QuickTask.
+ * Se encarga de gestionar el estado de las tareas, los filtros
+ * y de sincronizar todo con la interfaz de usuario.
+ */
+class GestorTareasRapidas {
   constructor() {
       this.tasks = [];
       this.currentFilter = 'all';
@@ -10,6 +15,9 @@ class QuickTaskManager {
       this.init();
   }
 
+  /**
+   * Inicializa la aplicación cargando datos, enlaces de eventos y vista inicial.
+   */
   init() {
       this.loadTasks();
       this.bindEvents();
@@ -27,26 +35,49 @@ class QuickTaskManager {
       this.updateViewButtons();
   }
 
+  /**
+   * Muestra un mensaje de bienvenida en consola cuando no hay tareas.
+   */
   showWelcomeMessage() {
       if (this.tasks.length === 0) {
           console.log('⚡ ¡Bienvenido a QuickTask! Tu gestor de tareas rápido y eficiente.');
       }
   }
 
+  /**
+   * Enlaza todos los eventos principales de la interfaz.
+   */
   bindEvents() {
-      // Form submission
-      document.getElementById('task-form').addEventListener('submit', (e) => {
+      this.bindFormEvents();
+      this.bindSearchEvents();
+      this.bindFilterEvents();
+      this.bindCategoryEvents();
+      this.bindViewEvents();
+      this.bindBulkActionEvents();
+      this.bindModalEvents();
+  }
+
+  bindFormEvents() {
+      const form = document.getElementById('task-form');
+      if (!form) return;
+
+      form.addEventListener('submit', (e) => {
           e.preventDefault();
-          this.addTaskQuickly();
+          this.agregarTareaRapida();
       });
+  }
 
-      // Search functionality - CORREGIDO
-      document.getElementById('search-input').addEventListener('input', (e) => {
+  bindSearchEvents() {
+      const searchInput = document.getElementById('search-input');
+      if (!searchInput) return;
+
+      searchInput.addEventListener('input', (e) => {
           this.currentSearchTerm = e.target.value;
-          this.searchTasksQuickly(e.target.value);
+          this.buscarTareasRapido(e.target.value);
       });
+  }
 
-      // Filter buttons - CORREGIDO
+  bindFilterEvents() {
       document.querySelectorAll('.filter-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
               e.preventDefault();
@@ -54,8 +85,9 @@ class QuickTaskManager {
               this.setFilter(filter);
           });
       });
+  }
 
-      // Category buttons - CORREGIDO
+  bindCategoryEvents() {
       document.querySelectorAll('.category-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
               e.preventDefault();
@@ -63,8 +95,9 @@ class QuickTaskManager {
               this.setCategoryFilter(category);
           });
       });
+  }
 
-      // View toggle - CORREGIDO
+  bindViewEvents() {
       document.querySelectorAll('.view-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
               e.preventDefault();
@@ -72,38 +105,53 @@ class QuickTaskManager {
               this.setView(view);
           });
       });
+  }
 
-      // Export tasks
-      document.getElementById('export-tasks').addEventListener('click', () => {
-          this.exportTasks();
-      });
+  bindBulkActionEvents() {
+      const exportBtn = document.getElementById('export-tasks');
+      if (exportBtn) {
+          exportBtn.addEventListener('click', () => {
+              this.exportTasks();
+          });
+      }
 
-      // Clear completed
-      document.getElementById('clear-completed').addEventListener('click', () => {
-          this.clearCompletedTasks();
-      });
+      const clearCompletedBtn = document.getElementById('clear-completed');
+      if (clearCompletedBtn) {
+          clearCompletedBtn.addEventListener('click', () => {
+              this.clearCompletedTasks();
+          });
+      }
+  }
 
-      // Modal events
+  bindModalEvents() {
       document.querySelectorAll('.close-modal, .cancel-edit').forEach(btn => {
           btn.addEventListener('click', () => {
               this.closeEditModal();
           });
       });
 
-      document.getElementById('edit-form').addEventListener('submit', (e) => {
-          e.preventDefault();
-          this.saveEditedTask();
-      });
+      const editForm = document.getElementById('edit-form');
+      if (editForm) {
+          editForm.addEventListener('submit', (e) => {
+              e.preventDefault();
+              this.saveEditedTask();
+          });
+      }
 
-      // Close modal on backdrop click
-      document.getElementById('edit-modal').addEventListener('click', (e) => {
-          if (e.target.id === 'edit-modal') {
-              this.closeEditModal();
-          }
-      });
+      const editModal = document.getElementById('edit-modal');
+      if (editModal) {
+          editModal.addEventListener('click', (e) => {
+              if (e.target.id === 'edit-modal') {
+                  this.closeEditModal();
+              }
+          });
+      }
   }
 
-  addTaskQuickly() {
+  /**
+   * Crea una nueva tarea rápida a partir del formulario lateral.
+   */
+  agregarTareaRapida() {
       const titleInput = document.getElementById('task-input');
       const prioritySelect = document.getElementById('task-priority');
       const categorySelect = document.getElementById('task-category');
@@ -138,7 +186,11 @@ class QuickTaskManager {
       titleInput.focus();
   }
 
-  searchTasksQuickly(query) {
+  /**
+   * Actualiza el término de búsqueda y vuelve a renderizar las tareas.
+   * @param {string} query - Texto introducido en el buscador.
+   */
+  buscarTareasRapido(query) {
       this.currentSearchTerm = query.toLowerCase().trim();
       this.renderTasks(); // CORREGIDO: Usar renderTasks que ya aplica todos los filtros
   }
@@ -205,6 +257,9 @@ class QuickTaskManager {
       }
   }
 
+  /**
+   * Aplica filtros (búsqueda, estado y categoría) y renderiza el resultado.
+   */
   renderTasks() {
       let filteredTasks = [...this.tasks];
 
@@ -232,56 +287,65 @@ class QuickTaskManager {
       this.renderFilteredTasks(filteredTasks);
   }
 
+  /**
+   * Renderiza en el DOM la lista de tareas ya filtradas.
+   * @param {Array<Object>} tasks - Tareas filtradas que se deben mostrar.
+   */
   renderFilteredTasks(tasks) {
       const container = document.getElementById('task-container');
-      const emptyState = document.getElementById('empty-state');
+      if (!container) return;
 
       // Limpiar contenedor
       container.innerHTML = '';
 
       if (tasks.length === 0) {
-          // Mostrar estado vacío apropiado
-          let emptyMessage = '';
-          let emptyIcon = 'fas fa-bolt';
-          
-          if (this.currentSearchTerm) {
-              emptyMessage = `No se encontraron tareas para "${this.currentSearchTerm}"`;
-              emptyIcon = 'fas fa-search';
-          } else if (this.currentFilter === 'completed') {
-              emptyMessage = 'No hay tareas completadas';
-              emptyIcon = 'fas fa-check-circle';
-          } else if (this.currentFilter === 'pending') {
-              emptyMessage = 'No hay tareas pendientes';
-              emptyIcon = 'fas fa-clock';
-          } else if (this.currentCategory !== 'all') {
-              emptyMessage = `No hay tareas en la categoría seleccionada`;
-              emptyIcon = 'fas fa-folder-open';
-          } else {
-              emptyMessage = '¡Empieza a ser productivo!';
-              emptyIcon = 'fas fa-bolt';
-          }
-
-          container.innerHTML = `
-              <div class="col-span-full text-center py-16">
-                  <i class="${emptyIcon} text-6xl text-yellow-500 mb-4 animate-pulse"></i>
-                  <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                      ${emptyMessage}
-                  </h3>
-                  <p class="text-gray-500 dark:text-gray-400">
-                      ${this.currentSearchTerm || this.currentFilter !== 'all' || this.currentCategory !== 'all' 
-                          ? 'Prueba con otros filtros' 
-                          : 'Añade tu primera tarea rápida ⚡'}
-                  </p>
-              </div>
-          `;
+          container.innerHTML = this.buildEmptyStateHTML();
           return;
       }
 
       // Renderizar tareas
       container.innerHTML = tasks.map(task => this.createTaskHTML(task)).join('');
 
-      // Bind task events
+      // Enlazar eventos de cada tarjeta
       this.bindTaskEvents();
+  }
+
+  buildEmptyStateHTML() {
+      let emptyMessage = '';
+      let emptyIcon = 'fas fa-bolt';
+      
+      if (this.currentSearchTerm) {
+          emptyMessage = `No se encontraron tareas para "${this.currentSearchTerm}"`;
+          emptyIcon = 'fas fa-search';
+      } else if (this.currentFilter === 'completed') {
+          emptyMessage = 'No hay tareas completadas';
+          emptyIcon = 'fas fa-check-circle';
+      } else if (this.currentFilter === 'pending') {
+          emptyMessage = 'No hay tareas pendientes';
+          emptyIcon = 'fas fa-clock';
+      } else if (this.currentCategory !== 'all') {
+          emptyMessage = `No hay tareas en la categoría seleccionada`;
+          emptyIcon = 'fas fa-folder-open';
+      } else {
+          emptyMessage = '¡Empieza a ser productivo!';
+          emptyIcon = 'fas fa-bolt';
+      }
+
+      const helperText = this.currentSearchTerm || this.currentFilter !== 'all' || this.currentCategory !== 'all' 
+          ? 'Prueba con otros filtros' 
+          : 'Añade tu primera tarea rápida ⚡';
+
+      return `
+          <div class="col-span-full text-center py-16">
+              <i class="${emptyIcon} text-6xl text-yellow-500 mb-4 animate-pulse"></i>
+              <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                  ${emptyMessage}
+              </h3>
+              <p class="text-gray-500 dark:text-gray-400">
+                  ${helperText}
+              </p>
+          </div>
+      `;
   }
 
   createTaskHTML(task) {
@@ -358,6 +422,11 @@ class QuickTaskManager {
       `;
   }
 
+  /**
+   * Devuelve información de texto y estilo sobre la fecha de vencimiento.
+   * @param {{ dueDate?: string }} task
+   * @returns {{ label: string, className: string } | null}
+   */
   getDueDateInfo(task) {
       if (!task?.dueDate) return null;
       if (typeof daysUntilTaskExpiration !== 'function') return null;
@@ -467,13 +536,23 @@ class QuickTaskManager {
       this.editingTaskId = null;
   }
 
+  /**
+   * Guarda los cambios realizados sobre una tarea en el modal de edición.
+   * Incluye validación para evitar títulos vacíos.
+   */
   saveEditedTask() {
       const taskId = this.editingTaskId;
       const task = this.tasks.find(t => t.id === taskId);
       
       if (!task) return;
 
-      task.title = document.getElementById('edit-task-input').value.trim();
+      const newTitle = document.getElementById('edit-task-input').value.trim();
+      if (!newTitle) {
+          this.showNotification('El título de la tarea no puede estar vacío', 'error');
+          return;
+      }
+
+      task.title = newTitle;
       task.priority = document.getElementById('edit-task-priority').value;
       task.category = document.getElementById('edit-task-category').value;
       const editDueDateEl = document.getElementById('edit-task-due-date');
@@ -485,6 +564,9 @@ class QuickTaskManager {
       this.showNotification('✏️ Tarea actualizada', 'success');
   }
 
+  /**
+   * Exporta las tareas actuales a un archivo JSON descargable.
+   */
   exportTasks() {
       const dataStr = JSON.stringify(this.tasks, null, 2);
       const dataBlob = new Blob([dataStr], {type: 'application/json'});
@@ -497,6 +579,10 @@ class QuickTaskManager {
       this.showNotification('📤 Tareas exportadas', 'success');
   }
 
+  /**
+   * Elimina todas las tareas marcadas como completadas,
+   * mostrando mensajes informativos según el caso.
+   */
   clearCompletedTasks() {
       const completedCount = this.tasks.filter(t => t.completed).length;
       
@@ -515,6 +601,9 @@ class QuickTaskManager {
       }
   }
 
+  /**
+   * Actualiza los contadores de tareas totales y completadas en el header.
+   */
   updateStats() {
       const totalTasks = this.tasks.length;
       const completedTasks = this.tasks.filter(t => t.completed).length;
@@ -527,6 +616,11 @@ class QuickTaskManager {
       // Este método ya no es necesario porque renderFilteredTasks maneja el estado vacío
   }
 
+  /**
+   * Muestra una notificación flotante en la esquina superior derecha.
+   * @param {string} message - Texto a mostrar.
+   * @param {'success'|'warning'|'error'|'info'} [type='info'] - Tipo de notificación.
+   */
   showNotification(message, type = 'info') {
       const notification = document.getElementById('notification');
       const icon = document.getElementById('notification-icon');
@@ -555,17 +649,23 @@ class QuickTaskManager {
       }, 3000);
   }
 
+  /**
+   * Persiste las tareas en localStorage.
+   */
   saveTasks() {
       localStorage.setItem('quicktask-tasks', JSON.stringify(this.tasks));
   }
 
+  /**
+   * Carga las tareas almacenadas previamente en localStorage.
+   */
   loadTasks() {
       const saved = localStorage.getItem('quicktask-tasks');
       this.tasks = saved ? JSON.parse(saved) : [];
   }
 }
 
-// Initialize app
+// Inicializar aplicación
 document.addEventListener('DOMContentLoaded', () => {
-    new QuickTaskManager();
+    new GestorTareasRapidas();
 });
