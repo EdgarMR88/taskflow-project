@@ -160,12 +160,30 @@ class GestorTareasRapidas {
       const title = titleInput.value.trim();
       if (!title) return;
 
+      const dueDateValue = dueDateInput?.value?.trim();
+      const days = dueDateValue ? daysUntilTaskExpiration(dueDateValue) : null;
+
+      if (!dueDateValue) {
+          this.showNotification('La fecha de vencimiento es obligatoria', 'error');
+          return;
+      }
+
+      if (days === null) {
+          this.showNotification('La fecha de vencimiento no es válida', 'error');
+          return;
+      }
+
+      if (days < 0) {
+          this.showNotification('La fecha de vencimiento no puede ser anterior a hoy', 'error');
+          return;
+      }
+
       const task = {
           id: Date.now(),
           title: title,
           priority: prioritySelect.value,
           category: categorySelect.value,
-          dueDate: dueDateInput?.value ? new Date(dueDateInput.value).toISOString() : null,
+          dueDate: new Date(dueDateValue).toISOString(),
           completed: false,
           createdAt: new Date().toISOString()
       };
@@ -556,7 +574,26 @@ class GestorTareasRapidas {
       task.priority = document.getElementById('edit-task-priority').value;
       task.category = document.getElementById('edit-task-category').value;
       const editDueDateEl = document.getElementById('edit-task-due-date');
-      task.dueDate = editDueDateEl?.value ? new Date(editDueDateEl.value).toISOString() : null;
+      const nuevaFecha = editDueDateEl?.value?.trim();
+
+      if (!nuevaFecha) {
+          this.showNotification('La fecha de vencimiento es obligatoria', 'error');
+          return;
+      }
+
+      const diasHastaVencimiento = daysUntilTaskExpiration(nuevaFecha);
+
+      if (diasHastaVencimiento === null) {
+          this.showNotification('La fecha de vencimiento no es válida', 'error');
+          return;
+      }
+
+      if (diasHastaVencimiento < 0) {
+          this.showNotification('La fecha de vencimiento no puede ser anterior a hoy', 'error');
+          return;
+      }
+
+      task.dueDate = new Date(nuevaFecha).toISOString();
 
       this.saveTasks();
       this.renderTasks();
