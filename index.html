@@ -336,34 +336,6 @@
 
   <script src="taskHelpers.js"></script>
   <script src="app.js"></script>
-  
-  <script>
-    // Theme Toggle Functionality
-    const themeToggle = document.getElementById('theme-toggle');
-    const html = document.documentElement;
-    
-    // Check for saved theme or default to light
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    html.classList.toggle('dark', savedTheme === 'dark');
-    
-    themeToggle.addEventListener('click', () => {
-      const isDark = html.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    });
-    
-    // Filter and Category Button Styles
-    document.addEventListener('DOMContentLoaded', () => {
-      const style = document.createElement('style');
-      style.textContent = `
-        .filter-btn, .category-btn, .view-btn {
-          @apply bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-900 hover:text-primary-700 dark:hover:text-primary-300;
-        }
-        .filter-btn.active, .category-btn.active, .view-btn.active {
-          @apply bg-primary-500 text-white hover:bg-primary-600;
-        }
-      `;
-      document.head.appendChild(style);
-    });
-  </script>
+  <script src="tema-y-estilos.js"></script>
 </body>
 </html>
