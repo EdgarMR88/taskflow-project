@@ -101,3 +101,71 @@ function daysUntilTaskExpiration(taskDate) {
     return daysDifference;
 }
 ```
+
+### MCP (Model Context Protocol) en este proyecto
+
+#### ¿Qué es MCP?
+
+- **MCP (Model Context Protocol)** es un protocolo para conectar modelos de IA con “servidores” externos (filesystem, GitHub, HTTP, etc.).
+- Cada servidor MCP expone herramientas (tools) que la IA puede usar como si fueran funciones remotas.
+
+#### Servidores configurados
+
+- **Global (para todo Cursor)**
+  - Servidor: `github`
+  - Implementación: `@modelcontextprotocol/server-github` (instalado con `npm install -g @modelcontextprotocol/server-github`).
+  - Configuración en `C:\Users\Edgar\.cursor\mcp.json`:
+    - Comando: `npx -y @modelcontextprotocol/server-github`
+    - Usa la variable de entorno `GITHUB_TOKEN` para autenticar contra la API de GitHub.
+- **Por proyecto (`taskflow-project/.cursor/mcp.json`)**
+  - Servidor: `filesystem-taskflow`
+  - Implementación: `@modelcontextprotocol/server-filesystem` (instalado con `npm install -g @modelcontextprotocol/server-filesystem`).
+  - Permite a la IA leer/escribir archivos dentro del directorio del proyecto usando MCP.
+
+#### Resumen de instalación paso a paso
+
+1. **Instalar servidores MCP necesarios**
+   - Filesystem:
+     - `npm install -g @modelcontextprotocol/server-filesystem`
+   - GitHub:
+     - `npm install -g @modelcontextprotocol/server-github`
+2. **Configurar MCP global (`C:\Users\Edgar\.cursor\mcp.json`)**
+   - Añadir:
+     - Servidor `github` con:
+       - `"command": "npx"`
+       - `"args": ["-y", "@modelcontextprotocol/server-github"]`
+       - `"env": { "GITHUB_TOKEN": "<PAT de GitHub>" }`
+3. **Configurar MCP del proyecto (`taskflow-project/.cursor/mcp.json`)**
+   - Añadir:
+     - Servidor `filesystem-taskflow` con:
+       - `"command": "npx"`
+       - `"args": ["-y", "@modelcontextprotocol/server-filesystem", "."]`
+4. **Reiniciar Cursor**
+   - Cerrar y volver a abrir Cursor para que lea las nuevas configuraciones.
+5. **Verificar desde la IA**
+   - Comprobar que aparecen:
+     - `filesystem-taskflow` como servidor MCP del proyecto.
+     - `github` como servidor MCP global.
+
+#### Ejemplos de consultas útiles con MCP
+
+- **Con `filesystem-taskflow`**
+  - Pedir a la IA:
+    - “Lee el contenido de `app.js` y resume las funciones principales.”
+    - “Busca en el proyecto cualquier archivo donde se use `GestorTareasRapidas`.”
+    - “Abre y analiza `index.html` para revisar la estructura del formulario de tareas.”
+- **Con `github`**
+  - Pedir a la IA:
+    - “Lista los últimos pull requests abiertos en el repo `EdgarMR88/taskflow-project`.”
+    - “Resume los issues abiertos con etiqueta `bug`.”
+
+#### ¿Cuándo es útil MCP en proyectos reales?
+
+- Cuando la IA necesita **acceso seguro y estructurado** a recursos externos:
+  - Repositorios GitHub (issues, PRs, código remoto).
+  - Sistemas de archivos (monolitos grandes, carpetas fuera del workspace).
+  - APIs internas (vía servidores HTTP MCP).
+- Permite:
+  - Automatizar flujos de trabajo (revisar PRs, generar reportes).
+  - Mantener separación clara entre código del proyecto y servicios externos.
+  - Reutilizar la misma configuración MCP en varios proyectos/equipos.

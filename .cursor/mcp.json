@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "filesystem-taskflow": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "."
+      ]
+    }
+  }
+}
