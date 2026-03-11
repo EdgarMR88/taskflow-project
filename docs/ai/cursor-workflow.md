@@ -169,3 +169,19 @@ function daysUntilTaskExpiration(taskDate) {
   - Automatizar flujos de trabajo (revisar PRs, generar reportes).
   - Mantener separación clara entre código del proyecto y servicios externos.
   - Reutilizar la misma configuración MCP en varios proyectos/equipos.
+
+---
+
+#### 2026-03-10 — Documentación asistida por IA (ejercicio)
+
+- **Objetivo**: Mejorar README y documentación de funciones; añadir ejemplos de uso.
+- **README** (`README.md`):
+  - Primera versión mejorada: título, descripción, demo, tabla de características actualizada (filtros desplegables, selector día/mes/año, ordenación, import/export, atajos).
+  - Estructura del proyecto actual (index.html, app.js, taskHelpers.js, tema-y-estilos.js, docs/ai).
+  - Instrucciones de uso rápido (clonar, servidor local con Python o `npx serve`).
+  - **Ejemplos de uso**: crear tarea, filtrar y ordenar, atajos de teclado, exportar/importar, editar tarea.
+  - Sección **Documentación de funciones principales**: tabla resumen de `taskHelpers.js` (getDaysInMonth, padTwo, daysUntilTaskExpiration) y de `GestorTareasRapidas` (init, agregarTareaRapida, filtros, renderTasks, sortTasks, applyDueDateFilter, initializeDateSelectors, export/import), con referencia a JSDoc en código.
+- **JSDoc en `app.js`**:
+  - Añadidos comentarios a: `fillDayOptions`, `syncTaskDueDateFromSelects`, `syncEditDueDateFromSelects`, `setFilter`, `setCategoryFilter`, `setDueFilter`, `setView`, `updateFilterButtons`, `updateCategoryButtons`, `updateViewButtons`, `updateDueFilterButtons`, `applyDueDateFilter`, `sortTasks`.
+- **Revisión**: La documentación generada se ha revisado para que coincida con el comportamiento actual (menús desplegables, selector de fecha, atajos, estructura de archivos).
+- **Archivos**: `README.md`, `app.js`, `docs/ai/cursor-workflow.md`
