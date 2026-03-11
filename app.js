@@ -143,6 +143,21 @@ class GestorTareasRapidas {
           });
       }
 
+      const importBtn = document.getElementById('import-tasks');
+      const importInput = document.getElementById('import-file-input');
+      if (importBtn && importInput) {
+          importBtn.addEventListener('click', () => {
+              importInput.value = '';
+              importInput.click();
+          });
+
+          importInput.addEventListener('change', async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              await this.importTasksFromFile(file);
+          });
+      }
+
       const clearCompletedBtn = document.getElementById('clear-completed');
       if (clearCompletedBtn) {
           clearCompletedBtn.addEventListener('click', () => {
@@ -710,6 +725,74 @@ class GestorTareasRapidas {
       link.click();
       
       this.showNotification('📤 Tareas exportadas', 'success');
+  }
+
+  async importTasksFromFile(file) {
+      try {
+          const text = await file.text();
+          const parsed = JSON.parse(text);
+
+          if (!Array.isArray(parsed)) {
+              this.showNotification('El JSON debe ser un array de tareas', 'error');
+              return;
+          }
+
+          const imported = parsed
+              .map((t) => this.normalizeImportedTask(t))
+              .filter(Boolean);
+
+          if (imported.length === 0) {
+              this.showNotification('No se encontraron tareas válidas para importar', 'error');
+              return;
+          }
+
+          const replace = confirm(
+              `Se importarán ${imported.length} tarea(s).\n\nAceptar: reemplazar todas las tareas actuales.\nCancelar: añadir (merge) a las tareas actuales.`
+          );
+
+          this.tasks = replace ? imported : [...imported, ...this.tasks];
+          this.saveTasks();
+          this.updateStats();
+          this.renderTasks();
+
+          this.showNotification('📥 Importación completada', 'success');
+      } catch (err) {
+          console.error(err);
+          this.showNotification('Error al importar JSON (formato inválido)', 'error');
+      }
+  }
+
+  normalizeImportedTask(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+
+      const title = String(raw.title ?? '').trim();
+      if (!title) return null;
+
+      const priority = raw.priority;
+      const category = raw.category;
+      const dueDate = raw.dueDate;
+
+      const allowedPriorities = new Set(['alta', 'media', 'baja']);
+      const allowedCategories = new Set(['personal', 'trabajo', 'hogar', 'salud', 'estudios']);
+
+      if (!allowedPriorities.has(priority)) return null;
+      if (!allowedCategories.has(category)) return null;
+
+      const days = typeof dueDate === 'string' ? daysUntilTaskExpiration(dueDate) : null;
+      if (days === null) return null;
+
+      const createdAt = raw.createdAt ? new Date(raw.createdAt).toISOString() : new Date().toISOString();
+      const completed = Boolean(raw.completed);
+
+      return {
+          id: typeof raw.id === 'number' ? raw.id : Date.now() + Math.floor(Math.random() * 100000),
+          title,
+          priority,
+          category,
+          dueDate: new Date(dueDate).toISOString(),
+          completed,
+          createdAt
+      };
   }
 
   /**
