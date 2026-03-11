@@ -185,3 +185,18 @@ function daysUntilTaskExpiration(taskDate) {
   - Añadidos comentarios a: `fillDayOptions`, `syncTaskDueDateFromSelects`, `syncEditDueDateFromSelects`, `setFilter`, `setCategoryFilter`, `setDueFilter`, `setView`, `updateFilterButtons`, `updateCategoryButtons`, `updateViewButtons`, `updateDueFilterButtons`, `applyDueDateFilter`, `sortTasks`.
 - **Revisión**: La documentación generada se ha revisado para que coincida con el comportamiento actual (menús desplegables, selector de fecha, atajos, estructura de archivos).
 - **Archivos**: `README.md`, `app.js`, `docs/ai/cursor-workflow.md`
+
+#### 2026-03-10 — Rendimiento, escalado, limpieza e idioma español
+
+- **Objetivo**: Evitar cuellos de botella, mejorar escalado, limpiar código y unificar nombres en español.
+- **Rendimiento**
+  - **Debounce en búsqueda**: El input de búsqueda usa un retardo de 200 ms (`RETARDO_BUSQUEDA_MS`) antes de llamar a `renderTasks()`, para no re-renderizar en cada tecla.
+  - **Delegación de eventos**: En lugar de añadir un listener por botón (toggle, editar, eliminar) en cada render, se usa un único listener en `task-container` que delega por clase (`.toggle-task`, `.edit-task`, `.delete-task`). Escala mejor con muchas tareas.
+- **Limpieza**
+  - Eliminado `updateEmptyState()` (redundante; el estado vacío lo maneja `buildEmptyStateHTML()` dentro de `renderFilteredTasks`).
+  - Eliminadas llamadas a `updateEmptyState` en `init`, `agregarTareaRapida`, `deleteTask`, `clearCompletedTasks`.
+  - Comentarios obsoletos ("CORREGIDO") y comentarios en inglés traducidos o eliminados.
+- **Español**
+  - Propiedades de instancia: `tasks` → `tareas`, `currentFilter` → `filtroActual`, `currentCategory` → `categoriaActual`, `currentView` → `vistaActual`, `editingTaskId` → `idTareaEditando`, `currentSearchTerm` → `terminoBusqueda`, `currentSort` → `ordenActual`, `currentDueFilter` → `filtroVencimiento`.
+  - Variables locales en métodos clave: `filteredTasks` → `tareasFiltradas`, `tasks`/`task` → `tareas`/`tarea` donde aplica, `emptyMessage`/`emptyIcon`/`helperText` → `mensajeVacio`/`iconoVacio`/`textoAyuda`, `sort`/`copy`/`priorityRank` → `orden`/`copia`/`prioridadValor`, parámetros `button`/`isActive` → `boton`/`activo`, `view` → `vista`.
+- **Archivos**: `app.js`, `docs/ai/cursor-workflow.md`

@@ -5,14 +5,14 @@
  */
 class GestorTareasRapidas {
   constructor() {
-      this.tasks = [];
-      this.currentFilter = 'all';
-      this.currentCategory = 'all';
-      this.currentView = 'grid';
-      this.editingTaskId = null;
-      this.currentSearchTerm = '';
-      this.currentSort = 'created_desc';
-      this.currentDueFilter = 'all';
+      this.tareas = [];
+      this.filtroActual = 'all';
+      this.categoriaActual = 'all';
+      this.vistaActual = 'grid';
+      this.idTareaEditando = null;
+      this.terminoBusqueda = '';
+      this.ordenActual = 'created_desc';
+      this.filtroVencimiento = 'all';
       
       this.init();
   }
@@ -27,7 +27,6 @@ class GestorTareasRapidas {
       this.initializeDateSelectors();
       this.updateStats();
       this.renderTasks();
-      this.updateEmptyState();
       this.showWelcomeMessage();
       this.initializeButtonStyles();
       this.initializeSortUI();
@@ -45,7 +44,7 @@ class GestorTareasRapidas {
    * Muestra un mensaje de bienvenida en consola cuando no hay tareas.
    */
   showWelcomeMessage() {
-      if (this.tasks.length === 0) {
+      if (this.tareas.length === 0) {
           console.log('⚡ ¡Bienvenido a QuickTask! Tu gestor de tareas rápido y eficiente.');
       }
   }
@@ -64,6 +63,7 @@ class GestorTareasRapidas {
       this.bindBulkActionEvents();
       this.bindModalEvents();
       this.bindKeyboardShortcuts();
+      this.bindTaskCardDelegation();
   }
 
   bindFormEvents() {
@@ -80,9 +80,17 @@ class GestorTareasRapidas {
       const searchInput = document.getElementById('search-input');
       if (!searchInput) return;
 
-      searchInput.addEventListener('input', (e) => {
-          this.currentSearchTerm = e.target.value;
-          this.buscarTareasRapido(e.target.value);
+      let timeoutBusqueda = null;
+      const RETARDO_BUSQUEDA_MS = 200;
+
+      searchInput.addEventListener('input', () => {
+          if (timeoutBusqueda) clearTimeout(timeoutBusqueda);
+          timeoutBusqueda = setTimeout(() => {
+              const valor = searchInput.value;
+              this.terminoBusqueda = valor.toLowerCase().trim();
+              this.renderTasks();
+              timeoutBusqueda = null;
+          }, RETARDO_BUSQUEDA_MS);
       });
   }
 
@@ -247,7 +255,7 @@ class GestorTareasRapidas {
       if (!sortSelect) return;
 
       sortSelect.addEventListener('change', (e) => {
-          this.currentSort = e.target.value;
+          this.ordenActual = e.target.value;
           this.savePreferences();
           this.renderTasks();
       });
@@ -349,7 +357,7 @@ class GestorTareasRapidas {
           }
 
           if (e.key === 'g' || e.key === 'G') {
-              const nextView = this.currentView === 'grid' ? 'list' : 'grid';
+              const nextView = this.vistaActual === 'grid' ? 'list' : 'grid';
               this.setView(nextView);
               e.preventDefault();
               return;
@@ -405,13 +413,12 @@ class GestorTareasRapidas {
           createdAt: new Date().toISOString()
       };
 
-      this.tasks.unshift(task);
+      this.tareas.unshift(task);
       this.saveTasks();
       this.updateStats();
-      this.renderTasks(); // CORREGIDO: Renderizar inmediatamente
-      this.updateEmptyState();
+      this.renderTasks();
 
-      // Reset form
+      // Reset formulario
       titleInput.value = '';
       prioritySelect.value = 'media';
       categorySelect.value = 'personal';
@@ -431,11 +438,11 @@ class GestorTareasRapidas {
 
   /**
    * Actualiza el término de búsqueda y vuelve a renderizar las tareas.
-   * @param {string} query - Texto introducido en el buscador.
+   * @param {string} [consulta] - Texto del buscador (si no se pasa, se usa this.terminoBusqueda).
    */
-  buscarTareasRapido(query) {
-      this.currentSearchTerm = query.toLowerCase().trim();
-      this.renderTasks(); // CORREGIDO: Usar renderTasks que ya aplica todos los filtros
+  buscarTareasRapido(consulta) {
+      if (consulta !== undefined) this.terminoBusqueda = consulta.toLowerCase().trim();
+      this.renderTasks();
   }
 
   /**
@@ -443,7 +450,7 @@ class GestorTareasRapidas {
    * @param {string} filter - 'all' | 'pending' | 'completed'
    */
   setFilter(filter) {
-      this.currentFilter = filter;
+      this.filtroActual = filter;
       this.updateFilterButtons();
       this.renderTasks();
   }
@@ -453,7 +460,7 @@ class GestorTareasRapidas {
    * @param {string} category - 'all' o una categoría (personal, trabajo, hogar, salud, estudios).
    */
   setCategoryFilter(category) {
-      this.currentCategory = category;
+      this.categoriaActual = category;
       this.updateCategoryButtons();
       this.renderTasks();
   }
@@ -463,7 +470,7 @@ class GestorTareasRapidas {
    * @param {string} dueFilter - 'all' | 'overdue' | 'today' | 'next7'
    */
   setDueFilter(dueFilter) {
-      this.currentDueFilter = dueFilter;
+      this.filtroVencimiento = dueFilter;
       this.updateDueFilterButtons();
       this.renderTasks();
   }
@@ -472,12 +479,12 @@ class GestorTareasRapidas {
    * Cambia la vista de la lista (grid o list) y actualiza las clases del contenedor.
    * @param {string} view - 'grid' | 'list'
    */
-  setView(view) {
-      this.currentView = view;
+  setView(vista) {
+      this.vistaActual = vista;
       this.updateViewButtons();
-      
+
       const container = document.getElementById('task-container');
-      if (view === 'list') {
+      if (vista === 'list') {
           container.className = 'space-y-3';
       } else {
           container.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4';
@@ -489,40 +496,39 @@ class GestorTareasRapidas {
   /** Sincroniza el desplegable "Por estado" con el filtro actual. */
   updateFilterButtons() {
       const select = document.getElementById('filter-status');
-      if (select) select.value = this.currentFilter || 'all';
+      if (select) select.value = this.filtroActual || 'all';
   }
 
   /** Sincroniza el desplegable "Por categoría" con el filtro actual. */
   updateCategoryButtons() {
       const select = document.getElementById('filter-category');
-      if (select) select.value = this.currentCategory || 'all';
+      if (select) select.value = this.categoriaActual || 'all';
   }
 
   /** Actualiza el estado visual (activo) de los botones de vista grid/lista. */
   updateViewButtons() {
       document.querySelectorAll('.view-btn').forEach(btn => {
-          const isActive = btn.dataset.view === this.currentView;
-          this.updateButtonState(btn, isActive);
+          const activo = btn.dataset.view === this.vistaActual;
+          this.updateButtonState(btn, activo);
       });
   }
 
   /** Sincroniza el desplegable "Por vencimiento" con el filtro actual. */
   updateDueFilterButtons() {
       const select = document.getElementById('filter-due');
-      if (select) select.value = this.currentDueFilter || 'all';
+      if (select) select.value = this.filtroVencimiento || 'all';
   }
 
-  updateButtonState(button, isActive) {
-      // Remover todas las clases
-      button.classList.remove(
+  updateButtonState(boton, activo) {
+      boton.classList.remove(
           'bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300',
           'bg-purple-500', 'text-white', 'bg-purple-600'
       );
-      
-      if (isActive) {
-          button.classList.add('bg-purple-500', 'text-white');
+
+      if (activo) {
+          boton.classList.add('bg-purple-500', 'text-white');
       } else {
-          button.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
+          boton.classList.add('bg-gray-100', 'dark:bg-gray-700', 'text-gray-700', 'dark:text-gray-300');
       }
   }
 
@@ -530,33 +536,30 @@ class GestorTareasRapidas {
    * Aplica filtros (búsqueda, estado y categoría) y renderiza el resultado.
    */
   renderTasks() {
-      let filteredTasks = [...this.tasks];
+      let tareasFiltradas = [...this.tareas];
 
-      // Aplicar filtro de búsqueda PRIMERO
-      if (this.currentSearchTerm) {
-          filteredTasks = filteredTasks.filter(task => 
-              task.title.toLowerCase().includes(this.currentSearchTerm) ||
-              task.category.toLowerCase().includes(this.currentSearchTerm) ||
-              task.priority.toLowerCase().includes(this.currentSearchTerm)
+      if (this.terminoBusqueda) {
+          tareasFiltradas = tareasFiltradas.filter(tarea =>
+              tarea.title.toLowerCase().includes(this.terminoBusqueda) ||
+              tarea.category.toLowerCase().includes(this.terminoBusqueda) ||
+              tarea.priority.toLowerCase().includes(this.terminoBusqueda)
           );
       }
 
-      // Apply status filter
-      if (this.currentFilter === 'pending') {
-          filteredTasks = filteredTasks.filter(task => !task.completed);
-      } else if (this.currentFilter === 'completed') {
-          filteredTasks = filteredTasks.filter(task => task.completed);
+      if (this.filtroActual === 'pending') {
+          tareasFiltradas = tareasFiltradas.filter(tarea => !tarea.completed);
+      } else if (this.filtroActual === 'completed') {
+          tareasFiltradas = tareasFiltradas.filter(tarea => tarea.completed);
       }
 
-      // Apply category filter
-      if (this.currentCategory !== 'all') {
-          filteredTasks = filteredTasks.filter(task => task.category === this.currentCategory);
+      if (this.categoriaActual !== 'all') {
+          tareasFiltradas = tareasFiltradas.filter(tarea => tarea.category === this.categoriaActual);
       }
 
-      filteredTasks = this.applyDueDateFilter(filteredTasks);
-      filteredTasks = this.sortTasks(filteredTasks);
+      tareasFiltradas = this.applyDueDateFilter(tareasFiltradas);
+      tareasFiltradas = this.sortTasks(tareasFiltradas);
 
-      this.renderFilteredTasks(filteredTasks);
+      this.renderFilteredTasks(tareasFiltradas);
   }
 
   /**
@@ -564,31 +567,31 @@ class GestorTareasRapidas {
    * @param {Array<Object>} tasks - Lista de tareas a filtrar.
    * @returns {Array<Object>} Lista filtrada.
    */
-  applyDueDateFilter(tasks) {
-      const filter = this.currentDueFilter || 'all';
-      if (filter === 'all') return tasks;
-      if (typeof daysUntilTaskExpiration !== 'function') return tasks;
+  applyDueDateFilter(tareas) {
+      const filtro = this.filtroVencimiento || 'all';
+      if (filtro === 'all') return tareas;
+      if (typeof daysUntilTaskExpiration !== 'function') return tareas;
 
-      const daysUntil = (task) => daysUntilTaskExpiration(task.dueDate);
+      const diasHasta = (tarea) => daysUntilTaskExpiration(tarea.dueDate);
 
-      switch (filter) {
+      switch (filtro) {
           case 'overdue':
-              return tasks.filter(t => {
-                  const d = daysUntil(t);
+              return tareas.filter(t => {
+                  const d = diasHasta(t);
                   return typeof d === 'number' && d < 0;
               });
           case 'today':
-              return tasks.filter(t => {
-                  const d = daysUntil(t);
+              return tareas.filter(t => {
+                  const d = diasHasta(t);
                   return typeof d === 'number' && d === 0;
               });
           case 'next7':
-              return tasks.filter(t => {
-                  const d = daysUntil(t);
+              return tareas.filter(t => {
+                  const d = diasHasta(t);
                   return typeof d === 'number' && d >= 0 && d <= 7;
               });
           default:
-              return tasks;
+              return tareas;
       }
   }
 
@@ -597,27 +600,27 @@ class GestorTareasRapidas {
    * @param {Array<Object>} tasks - Lista de tareas a ordenar.
    * @returns {Array<Object>} Nueva lista ordenada (no muta el original).
    */
-  sortTasks(tasks) {
-      const sort = this.currentSort || 'created_desc';
-      const priorityRank = { alta: 3, media: 2, baja: 1 };
+  sortTasks(tareas) {
+      const orden = this.ordenActual || 'created_desc';
+      const prioridadValor = { alta: 3, media: 2, baja: 1 };
 
-      const copy = [...tasks];
+      const copia = [...tareas];
 
-      switch (sort) {
+      switch (orden) {
           case 'created_asc':
-              return copy.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+              return copia.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
           case 'created_desc':
-              return copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+              return copia.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
           case 'due_asc':
-              return copy.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+              return copia.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
           case 'due_desc':
-              return copy.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+              return copia.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
           case 'priority_desc':
-              return copy.sort((a, b) => (priorityRank[b.priority] || 0) - (priorityRank[a.priority] || 0));
+              return copia.sort((a, b) => (prioridadValor[b.priority] || 0) - (prioridadValor[a.priority] || 0));
           case 'title_asc':
-              return copy.sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { sensitivity: 'base' }));
+              return copia.sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { sensitivity: 'base' }));
           default:
-              return copy;
+              return copia;
       }
   }
 
@@ -625,58 +628,53 @@ class GestorTareasRapidas {
    * Renderiza en el DOM la lista de tareas ya filtradas.
    * @param {Array<Object>} tasks - Tareas filtradas que se deben mostrar.
    */
-  renderFilteredTasks(tasks) {
+  renderFilteredTasks(tareas) {
       const container = document.getElementById('task-container');
       if (!container) return;
 
-      // Limpiar contenedor
       container.innerHTML = '';
 
-      if (tasks.length === 0) {
+      if (tareas.length === 0) {
           container.innerHTML = this.buildEmptyStateHTML();
           return;
       }
 
-      // Renderizar tareas
-      container.innerHTML = tasks.map(task => this.createTaskHTML(task)).join('');
-
-      // Enlazar eventos de cada tarjeta
-      this.bindTaskEvents();
+      container.innerHTML = tareas.map(tarea => this.createTaskHTML(tarea)).join('');
   }
 
   buildEmptyStateHTML() {
-      let emptyMessage = '';
-      let emptyIcon = 'fas fa-bolt';
-      
-      if (this.currentSearchTerm) {
-          emptyMessage = `No se encontraron tareas para "${this.currentSearchTerm}"`;
-          emptyIcon = 'fas fa-search';
-      } else if (this.currentFilter === 'completed') {
-          emptyMessage = 'No hay tareas completadas';
-          emptyIcon = 'fas fa-check-circle';
-      } else if (this.currentFilter === 'pending') {
-          emptyMessage = 'No hay tareas pendientes';
-          emptyIcon = 'fas fa-clock';
-      } else if (this.currentCategory !== 'all') {
-          emptyMessage = `No hay tareas en la categoría seleccionada`;
-          emptyIcon = 'fas fa-folder-open';
+      let mensajeVacio = '';
+      let iconoVacio = 'fas fa-bolt';
+
+      if (this.terminoBusqueda) {
+          mensajeVacio = `No se encontraron tareas para "${this.terminoBusqueda}"`;
+          iconoVacio = 'fas fa-search';
+      } else if (this.filtroActual === 'completed') {
+          mensajeVacio = 'No hay tareas completadas';
+          iconoVacio = 'fas fa-check-circle';
+      } else if (this.filtroActual === 'pending') {
+          mensajeVacio = 'No hay tareas pendientes';
+          iconoVacio = 'fas fa-clock';
+      } else if (this.categoriaActual !== 'all') {
+          mensajeVacio = 'No hay tareas en la categoría seleccionada';
+          iconoVacio = 'fas fa-folder-open';
       } else {
-          emptyMessage = '¡Empieza a ser productivo!';
-          emptyIcon = 'fas fa-bolt';
+          mensajeVacio = '¡Empieza a ser productivo!';
+          iconoVacio = 'fas fa-bolt';
       }
 
-      const helperText = this.currentSearchTerm || this.currentFilter !== 'all' || this.currentCategory !== 'all' 
-          ? 'Prueba con otros filtros' 
+      const textoAyuda = this.terminoBusqueda || this.filtroActual !== 'all' || this.categoriaActual !== 'all'
+          ? 'Prueba con otros filtros'
           : 'Añade tu primera tarea rápida ⚡';
 
       return `
           <div class="col-span-full text-center py-16">
-              <i class="${emptyIcon} text-6xl text-yellow-500 mb-4 animate-pulse"></i>
+              <i class="${iconoVacio} text-6xl text-yellow-500 mb-4 animate-pulse"></i>
               <h3 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  ${emptyMessage}
+                  ${mensajeVacio}
               </h3>
               <p class="text-gray-500 dark:text-gray-400">
-                  ${helperText}
+                  ${textoAyuda}
               </p>
           </div>
       `;
@@ -791,34 +789,32 @@ class GestorTareasRapidas {
       };
   }
 
-  bindTaskEvents() {
-      // Toggle task completion
-      document.querySelectorAll('.toggle-task').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              const taskId = parseInt(e.currentTarget.dataset.taskId);
+  /**
+   * Un solo listener en el contenedor (delegación de eventos) para escalar con muchas tareas.
+   */
+  bindTaskCardDelegation() {
+      const container = document.getElementById('task-container');
+      if (!container) return;
+
+      container.addEventListener('click', (e) => {
+          const btn = e.target.closest('.toggle-task, .edit-task, .delete-task');
+          if (!btn) return;
+          e.preventDefault();
+          const taskId = parseInt(btn.dataset.taskId, 10);
+          if (Number.isNaN(taskId)) return;
+
+          if (btn.classList.contains('toggle-task')) {
               this.toggleTaskCompletion(taskId);
-          });
-      });
-
-      // Edit task
-      document.querySelectorAll('.edit-task').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              const taskId = parseInt(e.currentTarget.dataset.taskId);
+          } else if (btn.classList.contains('edit-task')) {
               this.openEditModal(taskId);
-          });
-      });
-
-      // Delete task
-      document.querySelectorAll('.delete-task').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              const taskId = parseInt(e.currentTarget.dataset.taskId);
+          } else if (btn.classList.contains('delete-task')) {
               this.deleteTask(taskId);
-          });
+          }
       });
   }
 
   toggleTaskCompletion(taskId) {
-      const task = this.tasks.find(t => t.id === taskId);
+      const task = this.tareas.find(t => t.id === taskId);
       if (task) {
           task.completed = !task.completed;
           this.saveTasks();
@@ -832,20 +828,19 @@ class GestorTareasRapidas {
 
   deleteTask(taskId) {
       if (confirm('¿Estás seguro de que quieres eliminar esta tarea?')) {
-          this.tasks = this.tasks.filter(t => t.id !== taskId);
+          this.tareas = this.tareas.filter(t => t.id !== taskId);
           this.saveTasks();
           this.updateStats();
           this.renderTasks();
-          this.updateEmptyState();
           this.showNotification('🗑️ Tarea eliminada', 'warning');
       }
   }
 
   openEditModal(taskId) {
-      const task = this.tasks.find(t => t.id === taskId);
+      const task = this.tareas.find(t => t.id === taskId);
       if (!task) return;
 
-      this.editingTaskId = taskId;
+      this.idTareaEditando = taskId;
       
       document.getElementById('edit-task-id').value = taskId;
       document.getElementById('edit-task-input').value = task.title;
@@ -877,7 +872,7 @@ class GestorTareasRapidas {
       modal.classList.add('opacity-0', 'pointer-events-none');
       modal.querySelector('div').classList.remove('scale-100');
       modal.querySelector('div').classList.add('scale-95');
-      this.editingTaskId = null;
+      this.idTareaEditando = null;
   }
 
   /**
@@ -885,8 +880,8 @@ class GestorTareasRapidas {
    * Incluye validación para evitar títulos vacíos.
    */
   saveEditedTask() {
-      const taskId = this.editingTaskId;
-      const task = this.tasks.find(t => t.id === taskId);
+      const taskId = this.idTareaEditando;
+      const task = this.tareas.find(t => t.id === taskId);
       
       if (!task) return;
 
@@ -931,7 +926,7 @@ class GestorTareasRapidas {
    * Exporta las tareas actuales a un archivo JSON descargable.
    */
   exportTasks() {
-      const dataStr = JSON.stringify(this.tasks, null, 2);
+      const dataStr = JSON.stringify(this.tareas, null, 2);
       const dataBlob = new Blob([dataStr], {type: 'application/json'});
       
       const link = document.createElement('a');
@@ -965,7 +960,7 @@ class GestorTareasRapidas {
               `Se importarán ${imported.length} tarea(s).\n\nAceptar: reemplazar todas las tareas actuales.\nCancelar: añadir (merge) a las tareas actuales.`
           );
 
-          this.tasks = replace ? imported : [...imported, ...this.tasks];
+          this.tareas = replace ? imported : [...imported, ...this.tareas];
           this.saveTasks();
           this.updateStats();
           this.renderTasks();
@@ -1015,7 +1010,7 @@ class GestorTareasRapidas {
    * mostrando mensajes informativos según el caso.
    */
   clearCompletedTasks() {
-      const completedCount = this.tasks.filter(t => t.completed).length;
+      const completedCount = this.tareas.filter(t => t.completed).length;
       
       if (completedCount === 0) {
           this.showNotification('ℹ️ No hay tareas completadas', 'info');
@@ -1023,11 +1018,10 @@ class GestorTareasRapidas {
       }
 
       if (confirm(`¿Eliminar ${completedCount} tarea(s) completada(s)?`)) {
-          this.tasks = this.tasks.filter(t => !t.completed);
+          this.tareas = this.tareas.filter(t => !t.completed);
           this.saveTasks();
           this.updateStats();
           this.renderTasks();
-          this.updateEmptyState();
           this.showNotification(`🧹 ${completedCount} tarea(s) eliminada(s)`, 'success');
       }
   }
@@ -1036,15 +1030,11 @@ class GestorTareasRapidas {
    * Actualiza los contadores de tareas totales y completadas en el header.
    */
   updateStats() {
-      const totalTasks = this.tasks.length;
-      const completedTasks = this.tasks.filter(t => t.completed).length;
+      const totalTasks = this.tareas.length;
+      const completedTasks = this.tareas.filter(t => t.completed).length;
 
       document.getElementById('total-tasks').textContent = `${totalTasks} Tarea${totalTasks !== 1 ? 's' : ''}`;
       document.getElementById('completed-tasks').textContent = `${completedTasks} Completada${completedTasks !== 1 ? 's' : ''}`;
-  }
-
-  updateEmptyState() {
-      // Este método ya no es necesario porque renderFilteredTasks maneja el estado vacío
   }
 
   /**
@@ -1071,10 +1061,8 @@ class GestorTareasRapidas {
       notification.className = `fixed top-6 right-6 z-50 px-6 py-4 rounded-lg text-white font-semibold
                                transform transition-all duration-500 flex items-center gap-3 ${bg}`;
 
-      // Show notification
       notification.classList.remove('translate-x-full', 'opacity-0');
 
-      // Hide after 3 seconds
       setTimeout(() => {
           notification.classList.add('translate-x-full', 'opacity-0');
       }, 3000);
@@ -1084,29 +1072,29 @@ class GestorTareasRapidas {
    * Persiste las tareas en localStorage.
    */
   saveTasks() {
-      localStorage.setItem('quicktask-tasks', JSON.stringify(this.tasks));
+      localStorage.setItem('quicktask-tasks', JSON.stringify(this.tareas));
   }
 
   loadPreferences() {
       try {
           const raw = localStorage.getItem('quicktask-preferences');
           const prefs = raw ? JSON.parse(raw) : null;
-          if (prefs?.sort) this.currentSort = prefs.sort;
-          if (prefs?.dueFilter) this.currentDueFilter = prefs.dueFilter;
+          if (prefs?.sort) this.ordenActual = prefs.sort;
+          if (prefs?.dueFilter) this.filtroVencimiento = prefs.dueFilter;
       } catch {
           // Ignorar preferencias corruptas
       }
   }
 
   savePreferences() {
-      const prefs = { sort: this.currentSort, dueFilter: this.currentDueFilter };
+      const prefs = { sort: this.ordenActual, dueFilter: this.filtroVencimiento };
       localStorage.setItem('quicktask-preferences', JSON.stringify(prefs));
   }
 
   initializeSortUI() {
       const sortSelect = document.getElementById('sort-select');
       if (!sortSelect) return;
-      sortSelect.value = this.currentSort || 'created_desc';
+      sortSelect.value = this.ordenActual || 'created_desc';
   }
 
   initializeDueFilterUI() {
@@ -1118,7 +1106,7 @@ class GestorTareasRapidas {
    */
   loadTasks() {
       const saved = localStorage.getItem('quicktask-tasks');
-      this.tasks = saved ? JSON.parse(saved) : [];
+      this.tareas = saved ? JSON.parse(saved) : [];
   }
 }
 
