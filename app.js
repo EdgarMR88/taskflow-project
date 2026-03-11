@@ -184,6 +184,12 @@ class GestorTareasRapidas {
       document.getElementById('edit-task-due-day')?.addEventListener('change', () => this.syncEditDueDateFromSelects());
   }
 
+  /**
+   * Rellena el desplegable de días (1..N) según el mes y año dados.
+   * @param {string} selectId - ID del elemento <select> (ej. 'task-due-day' o 'edit-task-due-day').
+   * @param {number} mes - Mes (1-12).
+   * @param {number} anio - Año (ej. 2025).
+   */
   fillDayOptions(selectId, mes, anio) {
       const select = document.getElementById(selectId);
       if (!select) return;
@@ -200,6 +206,9 @@ class GestorTareasRapidas {
       select.value = val || 1;
   }
 
+  /**
+   * Escribe en el input oculto task-due-date el valor ISO (YYYY-MM-DD) a partir de los selects día/mes/año del formulario.
+   */
   syncTaskDueDateFromSelects() {
       const day = document.getElementById('task-due-day')?.value;
       const month = document.getElementById('task-due-month')?.value;
@@ -210,6 +219,9 @@ class GestorTareasRapidas {
       }
   }
 
+  /**
+   * Escribe en el input oculto edit-task-due-date el valor ISO (YYYY-MM-DD) a partir de los selects del modal de edición.
+   */
   syncEditDueDateFromSelects() {
       const day = document.getElementById('edit-task-due-day')?.value;
       const month = document.getElementById('edit-task-due-month')?.value;
@@ -426,24 +438,40 @@ class GestorTareasRapidas {
       this.renderTasks(); // CORREGIDO: Usar renderTasks que ya aplica todos los filtros
   }
 
+  /**
+   * Establece el filtro por estado (all, pending, completed) y re-renderiza la lista.
+   * @param {string} filter - 'all' | 'pending' | 'completed'
+   */
   setFilter(filter) {
       this.currentFilter = filter;
       this.updateFilterButtons();
       this.renderTasks();
   }
 
+  /**
+   * Establece el filtro por categoría y re-renderiza la lista.
+   * @param {string} category - 'all' o una categoría (personal, trabajo, hogar, salud, estudios).
+   */
   setCategoryFilter(category) {
       this.currentCategory = category;
       this.updateCategoryButtons();
       this.renderTasks();
   }
 
+  /**
+   * Establece el filtro por vencimiento (all, overdue, today, next7) y re-renderiza la lista.
+   * @param {string} dueFilter - 'all' | 'overdue' | 'today' | 'next7'
+   */
   setDueFilter(dueFilter) {
       this.currentDueFilter = dueFilter;
       this.updateDueFilterButtons();
       this.renderTasks();
   }
 
+  /**
+   * Cambia la vista de la lista (grid o list) y actualiza las clases del contenedor.
+   * @param {string} view - 'grid' | 'list'
+   */
   setView(view) {
       this.currentView = view;
       this.updateViewButtons();
@@ -458,16 +486,19 @@ class GestorTareasRapidas {
       this.renderTasks();
   }
 
+  /** Sincroniza el desplegable "Por estado" con el filtro actual. */
   updateFilterButtons() {
       const select = document.getElementById('filter-status');
       if (select) select.value = this.currentFilter || 'all';
   }
 
+  /** Sincroniza el desplegable "Por categoría" con el filtro actual. */
   updateCategoryButtons() {
       const select = document.getElementById('filter-category');
       if (select) select.value = this.currentCategory || 'all';
   }
 
+  /** Actualiza el estado visual (activo) de los botones de vista grid/lista. */
   updateViewButtons() {
       document.querySelectorAll('.view-btn').forEach(btn => {
           const isActive = btn.dataset.view === this.currentView;
@@ -475,6 +506,7 @@ class GestorTareasRapidas {
       });
   }
 
+  /** Sincroniza el desplegable "Por vencimiento" con el filtro actual. */
   updateDueFilterButtons() {
       const select = document.getElementById('filter-due');
       if (select) select.value = this.currentDueFilter || 'all';
@@ -527,6 +559,11 @@ class GestorTareasRapidas {
       this.renderFilteredTasks(filteredTasks);
   }
 
+  /**
+   * Filtra las tareas según el criterio de vencimiento actual (vencidas, hoy, próximos 7 días o todas).
+   * @param {Array<Object>} tasks - Lista de tareas a filtrar.
+   * @returns {Array<Object>} Lista filtrada.
+   */
   applyDueDateFilter(tasks) {
       const filter = this.currentDueFilter || 'all';
       if (filter === 'all') return tasks;
@@ -555,6 +592,11 @@ class GestorTareasRapidas {
       }
   }
 
+  /**
+   * Ordena las tareas según el criterio actual (creación, vencimiento, prioridad o título).
+   * @param {Array<Object>} tasks - Lista de tareas a ordenar.
+   * @returns {Array<Object>} Nueva lista ordenada (no muta el original).
+   */
   sortTasks(tasks) {
       const sort = this.currentSort || 'created_desc';
       const priorityRank = { alta: 3, media: 2, baja: 1 };
