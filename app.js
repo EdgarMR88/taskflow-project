@@ -12,6 +12,7 @@ class GestorTareasRapidas {
       this.editingTaskId = null;
       this.currentSearchTerm = '';
       this.currentSort = 'created_desc';
+      this.currentDueFilter = 'all';
       
       this.init();
   }
@@ -29,6 +30,7 @@ class GestorTareasRapidas {
       this.showWelcomeMessage();
       this.initializeButtonStyles();
       this.initializeSortUI();
+      this.initializeDueFilterUI();
   }
 
   initializeButtonStyles() {
@@ -55,6 +57,7 @@ class GestorTareasRapidas {
       this.bindSearchEvents();
       this.bindFilterEvents();
       this.bindCategoryEvents();
+      this.bindDueFilterEvents();
       this.bindViewEvents();
       this.bindSortEvents();
       this.bindBulkActionEvents();
@@ -97,6 +100,16 @@ class GestorTareasRapidas {
               e.preventDefault();
               const category = e.currentTarget.dataset.category;
               this.setCategoryFilter(category);
+          });
+      });
+  }
+
+  bindDueFilterEvents() {
+      document.querySelectorAll('.due-filter-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+              e.preventDefault();
+              const dueFilter = e.currentTarget.dataset.dueFilter;
+              this.setDueFilter(dueFilter);
           });
       });
   }
@@ -240,6 +253,12 @@ class GestorTareasRapidas {
       this.renderTasks();
   }
 
+  setDueFilter(dueFilter) {
+      this.currentDueFilter = dueFilter;
+      this.updateDueFilterButtons();
+      this.renderTasks();
+  }
+
   setView(view) {
       this.currentView = view;
       this.updateViewButtons();
@@ -272,6 +291,13 @@ class GestorTareasRapidas {
   updateViewButtons() {
       document.querySelectorAll('.view-btn').forEach(btn => {
           const isActive = btn.dataset.view === this.currentView;
+          this.updateButtonState(btn, isActive);
+      });
+  }
+
+  updateDueFilterButtons() {
+      document.querySelectorAll('.due-filter-btn').forEach(btn => {
+          const isActive = btn.dataset.dueFilter === this.currentDueFilter;
           this.updateButtonState(btn, isActive);
       });
   }
@@ -317,9 +343,38 @@ class GestorTareasRapidas {
           filteredTasks = filteredTasks.filter(task => task.category === this.currentCategory);
       }
 
+      filteredTasks = this.applyDueDateFilter(filteredTasks);
       filteredTasks = this.sortTasks(filteredTasks);
 
       this.renderFilteredTasks(filteredTasks);
+  }
+
+  applyDueDateFilter(tasks) {
+      const filter = this.currentDueFilter || 'all';
+      if (filter === 'all') return tasks;
+      if (typeof daysUntilTaskExpiration !== 'function') return tasks;
+
+      const daysUntil = (task) => daysUntilTaskExpiration(task.dueDate);
+
+      switch (filter) {
+          case 'overdue':
+              return tasks.filter(t => {
+                  const d = daysUntil(t);
+                  return typeof d === 'number' && d < 0;
+              });
+          case 'today':
+              return tasks.filter(t => {
+                  const d = daysUntil(t);
+                  return typeof d === 'number' && d === 0;
+              });
+          case 'next7':
+              return tasks.filter(t => {
+                  const d = daysUntil(t);
+                  return typeof d === 'number' && d >= 0 && d <= 7;
+              });
+          default:
+              return tasks;
+      }
   }
 
   sortTasks(tasks) {
@@ -739,13 +794,14 @@ class GestorTareasRapidas {
           const raw = localStorage.getItem('quicktask-preferences');
           const prefs = raw ? JSON.parse(raw) : null;
           if (prefs?.sort) this.currentSort = prefs.sort;
+          if (prefs?.dueFilter) this.currentDueFilter = prefs.dueFilter;
       } catch {
           // Ignorar preferencias corruptas
       }
   }
 
   savePreferences() {
-      const prefs = { sort: this.currentSort };
+      const prefs = { sort: this.currentSort, dueFilter: this.currentDueFilter };
       localStorage.setItem('quicktask-preferences', JSON.stringify(prefs));
   }
 
@@ -753,6 +809,10 @@ class GestorTareasRapidas {
       const sortSelect = document.getElementById('sort-select');
       if (!sortSelect) return;
       sortSelect.value = this.currentSort || 'created_desc';
+  }
+
+  initializeDueFilterUI() {
+      this.updateDueFilterButtons();
   }
 
   /**
