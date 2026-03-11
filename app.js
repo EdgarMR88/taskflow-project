@@ -24,6 +24,7 @@ class GestorTareasRapidas {
       this.loadTasks();
       this.loadPreferences();
       this.bindEvents();
+      this.initializeDateSelectors();
       this.updateStats();
       this.renderTasks();
       this.updateEmptyState();
@@ -86,33 +87,137 @@ class GestorTareasRapidas {
   }
 
   bindFilterEvents() {
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              e.preventDefault();
-              const filter = e.currentTarget.dataset.filter;
-              this.setFilter(filter);
+      const select = document.getElementById('filter-status');
+      if (select) {
+          select.addEventListener('change', (e) => {
+              this.setFilter(e.target.value);
           });
-      });
+      }
   }
 
   bindCategoryEvents() {
-      document.querySelectorAll('.category-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              e.preventDefault();
-              const category = e.currentTarget.dataset.category;
-              this.setCategoryFilter(category);
+      const select = document.getElementById('filter-category');
+      if (select) {
+          select.addEventListener('change', (e) => {
+              this.setCategoryFilter(e.target.value);
           });
-      });
+      }
   }
 
   bindDueFilterEvents() {
-      document.querySelectorAll('.due-filter-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-              e.preventDefault();
-              const dueFilter = e.currentTarget.dataset.dueFilter;
-              this.setDueFilter(dueFilter);
+      const select = document.getElementById('filter-due');
+      if (select) {
+          select.addEventListener('change', (e) => {
+              this.setDueFilter(e.target.value);
           });
+      }
+  }
+
+  /**
+   * Inicializa los selectores día/mes/año para fecha de vencimiento (formulario y modal de edición).
+   * Evita el calendario nativo confuso y mantiene la fecha en un input oculto en formato ISO.
+   */
+  initializeDateSelectors() {
+      const anioActual = new Date().getFullYear();
+      const hoy = new Date();
+      const diaHoy = hoy.getDate();
+      const mesHoy = hoy.getMonth() + 1;
+      const anioHoy = hoy.getFullYear();
+
+      // Rango de años: actual hasta +3
+      const yearSelect = document.getElementById('task-due-year');
+      if (yearSelect) {
+          yearSelect.innerHTML = '';
+          for (let y = anioActual; y <= anioActual + 3; y++) {
+              const opt = document.createElement('option');
+              opt.value = y;
+              opt.textContent = y;
+              yearSelect.appendChild(opt);
+          }
+      }
+
+      this.fillDayOptions('task-due-day', mesHoy, anioHoy);
+      const taskMonth = document.getElementById('task-due-month');
+      const taskDay = document.getElementById('task-due-day');
+      if (taskMonth) taskMonth.value = mesHoy;
+      if (yearSelect) yearSelect.value = anioHoy;
+      if (taskDay) taskDay.value = Math.min(diaHoy, getDaysInMonth(mesHoy, anioHoy));
+      this.syncTaskDueDateFromSelects();
+
+      taskMonth?.addEventListener('change', () => {
+          const mes = parseInt(document.getElementById('task-due-month').value, 10);
+          const anio = parseInt(document.getElementById('task-due-year').value, 10);
+          this.fillDayOptions('task-due-day', mes, anio);
+          this.syncTaskDueDateFromSelects();
       });
+      document.getElementById('task-due-year')?.addEventListener('change', () => {
+          const mes = parseInt(document.getElementById('task-due-month').value, 10);
+          const anio = parseInt(document.getElementById('task-due-year').value, 10);
+          this.fillDayOptions('task-due-day', mes, anio);
+          this.syncTaskDueDateFromSelects();
+      });
+      taskDay?.addEventListener('change', () => this.syncTaskDueDateFromSelects());
+
+      // Edit modal: años (incluye año anterior por si la tarea ya venció) y eventos
+      const editYear = document.getElementById('edit-task-due-year');
+      if (editYear) {
+          editYear.innerHTML = '';
+          for (let y = anioActual - 1; y <= anioActual + 3; y++) {
+              const opt = document.createElement('option');
+              opt.value = y;
+              opt.textContent = y;
+              editYear.appendChild(opt);
+          }
+      }
+      document.getElementById('edit-task-due-month')?.addEventListener('change', () => {
+          const mes = parseInt(document.getElementById('edit-task-due-month').value, 10);
+          const anio = parseInt(document.getElementById('edit-task-due-year').value, 10);
+          this.fillDayOptions('edit-task-due-day', mes, anio);
+          this.syncEditDueDateFromSelects();
+      });
+      document.getElementById('edit-task-due-year')?.addEventListener('change', () => {
+          const mes = parseInt(document.getElementById('edit-task-due-month').value, 10);
+          const anio = parseInt(document.getElementById('edit-task-due-year').value, 10);
+          this.fillDayOptions('edit-task-due-day', mes, anio);
+          this.syncEditDueDateFromSelects();
+      });
+      document.getElementById('edit-task-due-day')?.addEventListener('change', () => this.syncEditDueDateFromSelects());
+  }
+
+  fillDayOptions(selectId, mes, anio) {
+      const select = document.getElementById(selectId);
+      if (!select) return;
+      const maxDias = getDaysInMonth(mes, anio);
+      const currentVal = select.value;
+      select.innerHTML = '';
+      for (let d = 1; d <= maxDias; d++) {
+          const opt = document.createElement('option');
+          opt.value = d;
+          opt.textContent = d;
+          select.appendChild(opt);
+      }
+      const val = Math.min(parseInt(currentVal || '1', 10), maxDias);
+      select.value = val || 1;
+  }
+
+  syncTaskDueDateFromSelects() {
+      const day = document.getElementById('task-due-day')?.value;
+      const month = document.getElementById('task-due-month')?.value;
+      const year = document.getElementById('task-due-year')?.value;
+      const hidden = document.getElementById('task-due-date');
+      if (hidden && day && month && year) {
+          hidden.value = `${year}-${padTwo(month)}-${padTwo(day)}`;
+      }
+  }
+
+  syncEditDueDateFromSelects() {
+      const day = document.getElementById('edit-task-due-day')?.value;
+      const month = document.getElementById('edit-task-due-month')?.value;
+      const year = document.getElementById('edit-task-due-year')?.value;
+      const hidden = document.getElementById('edit-task-due-date');
+      if (hidden && day && month && year) {
+          hidden.value = `${year}-${padTwo(month)}-${padTwo(day)}`;
+      }
   }
 
   bindViewEvents() {
@@ -298,7 +403,15 @@ class GestorTareasRapidas {
       titleInput.value = '';
       prioritySelect.value = 'media';
       categorySelect.value = 'personal';
-      if (dueDateInput) dueDateInput.value = '';
+      const hoy = new Date();
+      const daySel = document.getElementById('task-due-day');
+      const monthSel = document.getElementById('task-due-month');
+      const yearSel = document.getElementById('task-due-year');
+      if (monthSel) monthSel.value = hoy.getMonth() + 1;
+      if (yearSel) yearSel.value = hoy.getFullYear();
+      this.fillDayOptions('task-due-day', hoy.getMonth() + 1, hoy.getFullYear());
+      if (daySel) daySel.value = hoy.getDate();
+      this.syncTaskDueDateFromSelects();
 
       this.showNotification('✅ Tarea añadida rápidamente', 'success');
       titleInput.focus();
@@ -345,19 +458,14 @@ class GestorTareasRapidas {
       this.renderTasks();
   }
 
-  // NUEVOS MÉTODOS para actualizar botones
   updateFilterButtons() {
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-          const isActive = btn.dataset.filter === this.currentFilter;
-          this.updateButtonState(btn, isActive);
-      });
+      const select = document.getElementById('filter-status');
+      if (select) select.value = this.currentFilter || 'all';
   }
 
   updateCategoryButtons() {
-      document.querySelectorAll('.category-btn').forEach(btn => {
-          const isActive = btn.dataset.category === this.currentCategory;
-          this.updateButtonState(btn, isActive);
-      });
+      const select = document.getElementById('filter-category');
+      if (select) select.value = this.currentCategory || 'all';
   }
 
   updateViewButtons() {
@@ -368,10 +476,8 @@ class GestorTareasRapidas {
   }
 
   updateDueFilterButtons() {
-      document.querySelectorAll('.due-filter-btn').forEach(btn => {
-          const isActive = btn.dataset.dueFilter === this.currentDueFilter;
-          this.updateButtonState(btn, isActive);
-      });
+      const select = document.getElementById('filter-due');
+      if (select) select.value = this.currentDueFilter || 'all';
   }
 
   updateButtonState(button, isActive) {
@@ -703,10 +809,20 @@ class GestorTareasRapidas {
       document.getElementById('edit-task-input').value = task.title;
       document.getElementById('edit-task-priority').value = task.priority;
       document.getElementById('edit-task-category').value = task.category;
-      const editDueDateEl = document.getElementById('edit-task-due-date');
-      if (editDueDateEl) {
-          editDueDateEl.value = task.dueDate ? new Date(task.dueDate).toISOString().slice(0, 10) : '';
+      if (task.dueDate) {
+          const d = new Date(task.dueDate);
+          const anio = d.getFullYear();
+          const mes = d.getMonth() + 1;
+          const dia = d.getDate();
+          this.fillDayOptions('edit-task-due-day', mes, anio);
+          const editYear = document.getElementById('edit-task-due-year');
+          const editMonth = document.getElementById('edit-task-due-month');
+          const editDay = document.getElementById('edit-task-due-day');
+          if (editYear) editYear.value = anio;
+          if (editMonth) editMonth.value = mes;
+          if (editDay) editDay.value = Math.min(dia, getDaysInMonth(mes, anio));
       }
+      this.syncEditDueDateFromSelects();
 
       const modal = document.getElementById('edit-modal');
       modal.classList.remove('opacity-0', 'pointer-events-none');

@@ -110,15 +110,47 @@
           </select>
 
           <div>
-            <label for="task-due-date" class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
-              Vence (obligatorio)
+            <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">
+              <i class="fas fa-calendar-day text-primary-500 mr-1"></i> Vence (obligatorio)
             </label>
-            <input type="date"
-                   id="task-due-date"
-                   class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                          bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                          focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                   required>
+            <div class="grid grid-cols-3 gap-2" id="task-due-date-wrapper">
+              <div>
+                <select id="task-due-day" aria-label="Día"
+                        class="date-select w-full px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm
+                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                  <!-- Días 1-31 rellenados por JS -->
+                </select>
+              </div>
+              <div>
+                <select id="task-due-month" aria-label="Mes"
+                        class="date-select w-full px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm
+                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                  <option value="1">Ene</option>
+                  <option value="2">Feb</option>
+                  <option value="3">Mar</option>
+                  <option value="4">Abr</option>
+                  <option value="5">May</option>
+                  <option value="6">Jun</option>
+                  <option value="7">Jul</option>
+                  <option value="8">Ago</option>
+                  <option value="9">Sep</option>
+                  <option value="10">Oct</option>
+                  <option value="11">Nov</option>
+                  <option value="12">Dic</option>
+                </select>
+              </div>
+              <div>
+                <select id="task-due-year" aria-label="Año"
+                        class="date-select w-full px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                               bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm
+                               focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                  <!-- Años rellenados por JS -->
+                </select>
+              </div>
+            </div>
+            <input type="hidden" id="task-due-date" required>
           </div>
           
           <button type="submit" 
@@ -152,45 +184,73 @@
                         focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
         </div>
         
-        <!-- Status Filters -->
+        <!-- Estado: menú desplegable -->
         <div class="space-y-2 mb-4">
-          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Por Estado</p>
-          <div class="space-y-1">
-            <button data-filter="all" class="filter-btn active w-full text-left px-3 py-2 rounded-lg transition-all duration-300">Todas</button>
-            <button data-filter="pending" class="filter-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">Pendientes</button>
-            <button data-filter="completed" class="filter-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">Completadas</button>
-          </div>
-        </div>
-        
-        <!-- Category Filters -->
-        <div class="space-y-2">
-          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Por Categoría</p>
-          <div class="space-y-1">
-            <button data-category="all" class="category-btn active w-full text-left px-3 py-2 rounded-lg transition-all duration-300">Todas</button>
-            <button data-category="personal" class="category-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">👤 Personal</button>
-            <button data-category="trabajo" class="category-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">💼 Trabajo</button>
-            <button data-category="hogar" class="category-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">🏠 Hogar</button>
-            <button data-category="salud" class="category-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">🏥 Salud</button>
-            <button data-category="estudios" class="category-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">📚 Estudios</button>
+          <label for="filter-status" class="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+            <i class="fas fa-circle-half-stroke text-primary-500"></i>
+            Por estado
+          </label>
+          <div class="relative">
+            <select id="filter-status"
+                    class="filter-select w-full pl-4 pr-10 py-3 rounded-xl border border-gray-300 dark:border-gray-600
+                           bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                           appearance-none cursor-pointer transition-all duration-300
+                           hover:border-primary-400 dark:hover:border-primary-500
+                           shadow-sm hover:shadow-md">
+              <option value="all">📋 Todas</option>
+              <option value="pending">⏳ Pendientes</option>
+              <option value="completed">✅ Completadas</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
           </div>
         </div>
 
-        <!-- Due Date Filters -->
+        <!-- Categoría: menú desplegable -->
+        <div class="space-y-2 mb-4">
+          <label for="filter-category" class="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+            <i class="fas fa-folder-open text-primary-500"></i>
+            Por categoría
+          </label>
+          <div class="relative">
+            <select id="filter-category"
+                    class="filter-select w-full pl-4 pr-10 py-3 rounded-xl border border-gray-300 dark:border-gray-600
+                           bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                           appearance-none cursor-pointer transition-all duration-300
+                           hover:border-primary-400 dark:hover:border-primary-500
+                           shadow-sm hover:shadow-md">
+              <option value="all">📂 Todas</option>
+              <option value="personal">👤 Personal</option>
+              <option value="trabajo">💼 Trabajo</option>
+              <option value="hogar">🏠 Hogar</option>
+              <option value="salud">🏥 Salud</option>
+              <option value="estudios">📚 Estudios</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+          </div>
+        </div>
+
+        <!-- Vencimiento: menú desplegable -->
         <div class="space-y-2 mt-5 pt-5 border-t border-gray-200 dark:border-gray-700">
-          <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">Por Vencimiento</p>
-          <div class="space-y-1">
-            <button data-due-filter="all" class="due-filter-btn active w-full text-left px-3 py-2 rounded-lg transition-all duration-300">
-              Todas
-            </button>
-            <button data-due-filter="overdue" class="due-filter-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">
-              ⛔ Vencidas
-            </button>
-            <button data-due-filter="today" class="due-filter-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">
-              📅 Vence hoy
-            </button>
-            <button data-due-filter="next7" class="due-filter-btn w-full text-left px-3 py-2 rounded-lg transition-all duration-300">
-              🔜 Próximos 7 días
-            </button>
+          <label for="filter-due" class="flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase">
+            <i class="fas fa-calendar-days text-primary-500"></i>
+            Por vencimiento
+          </label>
+          <div class="relative">
+            <select id="filter-due"
+                    class="filter-select w-full pl-4 pr-10 py-3 rounded-xl border border-gray-300 dark:border-gray-600
+                           bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
+                           focus:ring-2 focus:ring-primary-500 focus:border-primary-500
+                           appearance-none cursor-pointer transition-all duration-300
+                           hover:border-primary-400 dark:hover:border-primary-500
+                           shadow-sm hover:shadow-md">
+              <option value="all">📅 Todas</option>
+              <option value="overdue">⛔ Vencidas</option>
+              <option value="today">📆 Vence hoy</option>
+              <option value="next7">🔜 Próximos 7 días</option>
+            </select>
+            <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
           </div>
         </div>
       </div>
@@ -355,15 +415,45 @@
         </div>
 
         <div>
-          <label for="edit-task-due-date" class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-            Vence (obligatorio)
+          <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+            <i class="fas fa-calendar-day text-primary-500 mr-1"></i> Vence (obligatorio)
           </label>
-          <input type="date"
-                 id="edit-task-due-date"
-                 class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg 
-                        bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100
-                        focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                 required>
+          <div class="grid grid-cols-3 gap-2" id="edit-task-due-date-wrapper">
+            <div>
+              <select id="edit-task-due-day" aria-label="Día"
+                      class="date-select w-full px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                             bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm
+                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              </select>
+            </div>
+            <div>
+              <select id="edit-task-due-month" aria-label="Mes"
+                      class="date-select w-full px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                             bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm
+                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                <option value="1">Ene</option>
+                <option value="2">Feb</option>
+                <option value="3">Mar</option>
+                <option value="4">Abr</option>
+                <option value="5">May</option>
+                <option value="6">Jun</option>
+                <option value="7">Jul</option>
+                <option value="8">Ago</option>
+                <option value="9">Sep</option>
+                <option value="10">Oct</option>
+                <option value="11">Nov</option>
+                <option value="12">Dic</option>
+              </select>
+            </div>
+            <div>
+              <select id="edit-task-due-year" aria-label="Año"
+                      class="date-select w-full px-2 py-3 border border-gray-300 dark:border-gray-600 rounded-lg
+                             bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm
+                             focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+              </select>
+            </div>
+          </div>
+          <input type="hidden" id="edit-task-due-date" required>
         </div>
         
         <!-- Modal Actions -->
