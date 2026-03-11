@@ -62,6 +62,7 @@ class GestorTareasRapidas {
       this.bindSortEvents();
       this.bindBulkActionEvents();
       this.bindModalEvents();
+      this.bindKeyboardShortcuts();
   }
 
   bindFormEvents() {
@@ -189,6 +190,62 @@ class GestorTareasRapidas {
               }
           });
       }
+  }
+
+  bindKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+          if (e.defaultPrevented) return;
+          if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+          const activeTag = document.activeElement?.tagName?.toLowerCase();
+          const isTyping = activeTag === 'input' || activeTag === 'textarea' || document.activeElement?.isContentEditable;
+
+          // Si hay un modal abierto, permitir ESC incluso si estás escribiendo
+          if (e.key === 'Escape') {
+              const modal = document.getElementById('edit-modal');
+              const isOpen = modal && !modal.classList.contains('pointer-events-none');
+              if (isOpen) {
+                  this.closeEditModal();
+                  e.preventDefault();
+              }
+              return;
+          }
+
+          if (isTyping) return;
+
+          if (e.key === '/') {
+              const search = document.getElementById('search-input');
+              if (search) {
+                  search.focus();
+                  e.preventDefault();
+              }
+              return;
+          }
+
+          if (e.key === 'n' || e.key === 'N') {
+              const input = document.getElementById('task-input');
+              if (input) {
+                  input.focus();
+                  e.preventDefault();
+              }
+              return;
+          }
+
+          if (e.key === 'g' || e.key === 'G') {
+              const nextView = this.currentView === 'grid' ? 'list' : 'grid';
+              this.setView(nextView);
+              e.preventDefault();
+              return;
+          }
+
+          if (e.key === 't' || e.key === 'T') {
+              const toggle = document.getElementById('theme-toggle');
+              if (toggle) {
+                  toggle.click();
+                  e.preventDefault();
+              }
+          }
+      });
   }
 
   /**
