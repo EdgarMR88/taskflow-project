@@ -11,6 +11,7 @@ class GestorTareasRapidas {
       this.currentView = 'grid';
       this.editingTaskId = null;
       this.currentSearchTerm = '';
+      this.currentSort = 'created_desc';
       
       this.init();
   }
@@ -20,12 +21,14 @@ class GestorTareasRapidas {
    */
   init() {
       this.loadTasks();
+      this.loadPreferences();
       this.bindEvents();
       this.updateStats();
       this.renderTasks();
       this.updateEmptyState();
       this.showWelcomeMessage();
       this.initializeButtonStyles();
+      this.initializeSortUI();
   }
 
   initializeButtonStyles() {
@@ -53,6 +56,7 @@ class GestorTareasRapidas {
       this.bindFilterEvents();
       this.bindCategoryEvents();
       this.bindViewEvents();
+      this.bindSortEvents();
       this.bindBulkActionEvents();
       this.bindModalEvents();
   }
@@ -104,6 +108,17 @@ class GestorTareasRapidas {
               const view = e.currentTarget.dataset.view;
               this.setView(view);
           });
+      });
+  }
+
+  bindSortEvents() {
+      const sortSelect = document.getElementById('sort-select');
+      if (!sortSelect) return;
+
+      sortSelect.addEventListener('change', (e) => {
+          this.currentSort = e.target.value;
+          this.savePreferences();
+          this.renderTasks();
       });
   }
 
@@ -302,7 +317,33 @@ class GestorTareasRapidas {
           filteredTasks = filteredTasks.filter(task => task.category === this.currentCategory);
       }
 
+      filteredTasks = this.sortTasks(filteredTasks);
+
       this.renderFilteredTasks(filteredTasks);
+  }
+
+  sortTasks(tasks) {
+      const sort = this.currentSort || 'created_desc';
+      const priorityRank = { alta: 3, media: 2, baja: 1 };
+
+      const copy = [...tasks];
+
+      switch (sort) {
+          case 'created_asc':
+              return copy.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+          case 'created_desc':
+              return copy.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          case 'due_asc':
+              return copy.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+          case 'due_desc':
+              return copy.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+          case 'priority_desc':
+              return copy.sort((a, b) => (priorityRank[b.priority] || 0) - (priorityRank[a.priority] || 0));
+          case 'title_asc':
+              return copy.sort((a, b) => String(a.title || '').localeCompare(String(b.title || ''), 'es', { sensitivity: 'base' }));
+          default:
+              return copy;
+      }
   }
 
   /**
@@ -691,6 +732,27 @@ class GestorTareasRapidas {
    */
   saveTasks() {
       localStorage.setItem('quicktask-tasks', JSON.stringify(this.tasks));
+  }
+
+  loadPreferences() {
+      try {
+          const raw = localStorage.getItem('quicktask-preferences');
+          const prefs = raw ? JSON.parse(raw) : null;
+          if (prefs?.sort) this.currentSort = prefs.sort;
+      } catch {
+          // Ignorar preferencias corruptas
+      }
+  }
+
+  savePreferences() {
+      const prefs = { sort: this.currentSort };
+      localStorage.setItem('quicktask-preferences', JSON.stringify(prefs));
+  }
+
+  initializeSortUI() {
+      const sortSelect = document.getElementById('sort-select');
+      if (!sortSelect) return;
+      sortSelect.value = this.currentSort || 'created_desc';
   }
 
   /**
