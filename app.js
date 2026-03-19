@@ -290,6 +290,13 @@ class GestorTareasRapidas {
               this.clearCompletedTasks();
           });
       }
+
+      const completeAllBtn = document.getElementById('complete-all-tasks');
+      if (completeAllBtn) {
+          completeAllBtn.addEventListener('click', () => {
+              this.completarTodasLasTareas();
+          });
+      }
   }
 
   bindModalEvents() {
@@ -1003,6 +1010,26 @@ class GestorTareasRapidas {
           completed,
           createdAt
       };
+  }
+
+  /**
+   * Marca todas las tareas pendientes como completadas.
+   */
+  completarTodasLasTareas() {
+      const pendientes = this.tareas.filter(t => !t.completed);
+
+      if (pendientes.length === 0) {
+          this.showNotification('ℹ️ Todas las tareas ya están completadas', 'info');
+          return;
+      }
+
+      if (!confirm(`¿Marcar ${pendientes.length} tarea(s) pendiente(s) como completadas?`)) return;
+
+      this.tareas.forEach(t => { t.completed = true; });
+      this.saveTasks();
+      this.updateStats();
+      this.renderTasks();
+      this.showNotification(`✅ ${pendientes.length} tarea(s) completadas`, 'success');
   }
 
   /**
