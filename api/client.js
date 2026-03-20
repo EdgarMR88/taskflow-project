@@ -11,7 +11,7 @@
 // Cambia la segunda URL por la que te asigne Vercel al desplegar el backend.
 const URL_BASE_API = window.location.hostname === 'localhost'
   ? 'http://localhost:3000/api/v1'
-  : 'https://tu-backend.vercel.app/api/v1';
+  : 'https://taskflow-project-dzkm.vercel.app/api/v1';
 
 /**
  * Clase ClienteHttp - Encapsula la logica de comunicacion HTTP.
