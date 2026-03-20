@@ -6,7 +6,12 @@
  * (por ejemplo, cambiar la URL base o añadir autenticacion en un solo sitio).
  */
 
-const URL_BASE_API = 'http://localhost:3000/api/v1';
+// En local (localhost) apuntamos al servidor de desarrollo.
+// En cualquier otro dominio (Vercel, etc.) se usa la URL del backend desplegado.
+// Cambia la segunda URL por la que te asigne Vercel al desplegar el backend.
+const URL_BASE_API = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000/api/v1'
+  : 'https://tu-backend.vercel.app/api/v1';
 
 /**
  * Clase ClienteHttp - Encapsula la logica de comunicacion HTTP.
@@ -44,7 +49,16 @@ class ClienteHttp {
 
       // Algunos endpoints devuelven 204 sin cuerpo (ej. DELETE exitoso)
       const texto = await respuesta.text();
-      const datos = texto ? JSON.parse(texto) : null;
+      let datos = null;
+      if (texto) {
+        try {
+          datos = JSON.parse(texto);
+        } catch {
+          // El cuerpo no es JSON valido (p. ej. HTML de error de proxy/CDN)
+          // Se ignora el cuerpo y se usa el codigo HTTP para construir el error
+          datos = null;
+        }
+      }
 
       // Si el codigo HTTP no es 2xx, lanzar error con detalle del servidor
       if (!respuesta.ok) {

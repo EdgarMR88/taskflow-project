@@ -87,9 +87,13 @@ app.use((err, req, res, next) => {
 
 /**
  * INICIAR SERVIDOR
+ * En local se llama a listen(); en Vercel (serverless) este bloque no se ejecuta
+ * porque el modulo es importado, no ejecutado directamente.
  */
-app.listen(configuracion.PORT, () => {
-  console.log(`TaskFlow API activa en http://localhost:${configuracion.PORT} (${configuracion.NODE_ENV})`);
-});
+if (require.main === module) {
+  app.listen(configuracion.PORT, () => {
+    console.log(`TaskFlow API activa en http://localhost:${configuracion.PORT} (${configuracion.NODE_ENV})`);
+  });
+}
 
 module.exports = app;

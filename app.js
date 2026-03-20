@@ -18,7 +18,9 @@ class GestorTareasRapidas {
       this.ordenActual = 'created_desc';
       this.filtroVencimiento = 'all';
 
-      this.init();
+      this.init().catch((error) => {
+          console.error('Error al inicializar la aplicacion:', error);
+      });
   }
 
   /**
