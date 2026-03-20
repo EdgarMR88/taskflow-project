@@ -21,10 +21,12 @@ const app = express();
 app.use(express.json());
 
 // 2) CORS - Permite solicitudes desde otros origenes
+// En desarrollo se acepta cualquier origen para no bloquear el frontend
+// En produccion usar la variable CORS_ORIGIN del .env
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
-    credentials: true,
+    origin: configuracion.esDesarrollo ? '*' : (process.env.CORS_ORIGIN || 'http://localhost:3001'),
+    credentials: !configuracion.esDesarrollo,
   })
 );
 
@@ -85,9 +87,13 @@ app.use((err, req, res, next) => {
 
 /**
  * INICIAR SERVIDOR
+ * En local se llama a listen(); en Vercel (serverless) este bloque no se ejecuta
+ * porque el modulo es importado, no ejecutado directamente.
  */
-app.listen(configuracion.PORT, () => {
-  console.log(`TaskFlow API activa en http://localhost:${configuracion.PORT} (${configuracion.NODE_ENV})`);
-});
+if (require.main === module) {
+  app.listen(configuracion.PORT, () => {
+    console.log(`TaskFlow API activa en http://localhost:${configuracion.PORT} (${configuracion.NODE_ENV})`);
+  });
+}
 
 module.exports = app;
