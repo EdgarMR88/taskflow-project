@@ -62,7 +62,7 @@ const obtenerPorId = (req, res) => {
  */
 const crearTarea = (req, res) => {
   try {
-    const { titulo, descripcion, prioridad, estado } = req.body;
+    const { titulo, descripcion, prioridad, estado, categoria, fechaVencimiento, completada } = req.body;
 
     // VALIDACION DEFENSIVA - Frontera de red
     if (!titulo || typeof titulo !== 'string') {
@@ -79,19 +79,15 @@ const crearTarea = (req, res) => {
       });
     }
 
-    if (prioridad !== undefined && typeof prioridad !== 'number') {
-      return res.status(400).json({
-        exito: false,
-        error: 'El campo "prioridad" debe ser un numero',
-      });
-    }
-
     // Llamar al servicio con datos validados
     const nuevaTarea = servicioTareas.crearTarea({
       titulo: titulo.trim(),
       descripcion: descripcion?.trim() || '',
-      prioridad: prioridad || 1,
+      prioridad: prioridad || 'media',
       estado: estado || 'pendiente',
+      categoria: categoria || 'personal',
+      fechaVencimiento: fechaVencimiento || null,
+      completada: completada || false,
     });
 
     // HTTP 201 = Recurso creado exitosamente
@@ -116,7 +112,7 @@ const crearTarea = (req, res) => {
 const actualizarTarea = (req, res) => {
   try {
     const { id } = req.params;
-    const { titulo, descripcion, prioridad, estado } = req.body;
+    const { titulo, descripcion, prioridad, estado, categoria, fechaVencimiento, completada } = req.body;
 
     // VALIDACION: si viene titulo, debe ser valido
     if (titulo !== undefined && (typeof titulo !== 'string' || titulo.trim().length < 3)) {
@@ -126,19 +122,15 @@ const actualizarTarea = (req, res) => {
       });
     }
 
-    if (prioridad !== undefined && typeof prioridad !== 'number') {
-      return res.status(400).json({
-        exito: false,
-        error: 'El campo "prioridad" debe ser un numero',
-      });
-    }
-
     // Preparar objeto de actualizacion (solo campos definidos)
     const datosActualizacion = {};
     if (titulo !== undefined) datosActualizacion.titulo = titulo.trim();
     if (descripcion !== undefined) datosActualizacion.descripcion = descripcion.trim();
     if (prioridad !== undefined) datosActualizacion.prioridad = prioridad;
     if (estado !== undefined) datosActualizacion.estado = estado;
+    if (categoria !== undefined) datosActualizacion.categoria = categoria;
+    if (fechaVencimiento !== undefined) datosActualizacion.fechaVencimiento = fechaVencimiento;
+    if (completada !== undefined) datosActualizacion.completada = completada;
 
     const tareaActualizada = servicioTareas.actualizarTarea(id, datosActualizacion);
 

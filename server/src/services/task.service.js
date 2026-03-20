@@ -39,8 +39,11 @@ const crearTarea = (datos) => {
   const {
     titulo,
     descripcion = '',
-    prioridad = 1,
+    prioridad = 'media',
     estado = 'pendiente',
+    categoria = 'personal',
+    fechaVencimiento = null,
+    completada = false,
   } = datos;
 
   const nuevaTarea = {
@@ -49,6 +52,9 @@ const crearTarea = (datos) => {
     descripcion,
     prioridad,
     estado,
+    categoria,
+    fechaVencimiento,
+    completada,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
@@ -72,6 +78,9 @@ const actualizarTarea = (id, datos) => {
   if (datos.descripcion !== undefined) tarea.descripcion = datos.descripcion;
   if (datos.prioridad !== undefined) tarea.prioridad = datos.prioridad;
   if (datos.estado !== undefined) tarea.estado = datos.estado;
+  if (datos.categoria !== undefined) tarea.categoria = datos.categoria;
+  if (datos.fechaVencimiento !== undefined) tarea.fechaVencimiento = datos.fechaVencimiento;
+  if (datos.completada !== undefined) tarea.completada = datos.completada;
 
   tarea.updatedAt = new Date().toISOString();
 

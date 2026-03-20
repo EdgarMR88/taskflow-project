@@ -21,10 +21,12 @@ const app = express();
 app.use(express.json());
 
 // 2) CORS - Permite solicitudes desde otros origenes
+// En desarrollo se acepta cualquier origen para no bloquear el frontend
+// En produccion usar la variable CORS_ORIGIN del .env
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
-    credentials: true,
+    origin: configuracion.esDesarrollo ? '*' : (process.env.CORS_ORIGIN || 'http://localhost:3001'),
+    credentials: !configuracion.esDesarrollo,
   })
 );
 
