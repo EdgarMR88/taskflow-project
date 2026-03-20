@@ -49,7 +49,7 @@ taskflow-project/
 ├── taskHelpers.js          # Utilidades: cálculo de fechas, formateo
 ├── tema-y-estilos.js       # Toggle tema claro/oscuro
 │
-├── api/                    # Capa de red del frontend
+├── red/                    # Capa de red del frontend
 │   ├── client.js           # Cliente HTTP (fetch) + mapeo de datos frontend↔backend
 │   └── tasks-manager.js    # Estado de red (cargando/error) y patrón observador
 │
@@ -359,14 +359,14 @@ Express identifica un middleware como manejador de errores exclusivamente por su
 
 ## Capa de red del frontend
 
-### `api/client.js`
+### `red/client.js`
 
 Encapsula toda comunicación HTTP. Contiene dos clases:
 
 - **`ClienteHttp`**: abstracción genérica sobre `fetch` con soporte para timeout (10s), manejo de respuestas 204 vacías y distinción entre errores de red, timeout y errores HTTP.
 - **`ApiTareas`**: interfaz semántica de alto nivel (`obtenerTodas`, `crear`, `actualizar`, `eliminar`) que además traduce los datos entre el esquema del frontend (camelCase en inglés) y el esquema del backend (español).
 
-### `api/tasks-manager.js`
+### `red/tasks-manager.js`
 
 Gestiona el estado de red de la interfaz: `cargando` y `ultimoError`. Usa el patrón observador para notificar a `app.js` cuando el estado cambia, de modo que la barra de carga y el banner de error se actualicen automáticamente.
 
