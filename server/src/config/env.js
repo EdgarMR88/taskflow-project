@@ -12,7 +12,7 @@ variablesRequeridas.forEach(nombreVariable => {
 const entornoNodo = process.env.NODE_ENV || 'development';
 
 module.exports = {
-  PORT: process.env.PORT || 3000,
+  PORT: parseInt(process.env.PORT, 10),
   NODE_ENV: entornoNodo,
   esDesarrollo: entornoNodo === 'development',
 };

@@ -97,5 +97,5 @@ class GestorRedTareas {
 }
 
 // Instancia global lista para usar desde app.js
-// Depende de "apiTareas" definida en api/client.js (debe cargarse antes)
+// Depende de "apiTareas" definida en red/client.js (debe cargarse antes)
 const gestorRed = new GestorRedTareas(apiTareas);
