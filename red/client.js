@@ -9,7 +9,8 @@
 // En local (localhost) apuntamos al servidor de desarrollo.
 // En cualquier otro dominio (Vercel, etc.) se usa la URL del backend desplegado.
 // Cambia la segunda URL por la que te asigne Vercel al desplegar el backend.
-const URL_BASE_API = window.location.hostname === 'localhost'
+const esLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const URL_BASE_API = esLocal
   ? 'http://localhost:3000/api/v1'
   : 'https://taskflow-project-dzkm.vercel.app/api/v1';
 
